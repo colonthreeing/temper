@@ -1,6 +1,6 @@
 [package]
 name = "temper-dashboard"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 
 [dependencies]
@@ -24,6 +24,8 @@ temper-performance = { workspace = true }
 
 [build-dependencies]
 reqwest = { workspace = true }
+build-print = { workspace = true }
+
 
 anyhow = { workspace = true }
 zip = { workspace = true }

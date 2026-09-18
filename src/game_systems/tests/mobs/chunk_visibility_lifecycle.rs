@@ -1,3 +1,4 @@
+use crate::{emit_load_messages_for_known_chunks, wait_for_saved_chunk};
 use background::{chunk_unloader, entity_unloader};
 use bevy_ecs::prelude::*;
 use mobs::spawn::{
@@ -12,13 +13,12 @@ use temper_components::player::player_marker::PlayerMarker;
 use temper_components::player::position::Position;
 use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
+use temper_entities::MobKind;
 use temper_entities::entity_types::EntityTypeEnum;
 use temper_entities::markers::entity_types::{Fox, Pig};
 use temper_entities::markers::{HasCollisions, HasGravity, HasWaterDrag};
-use temper_entities::MobKind;
 use temper_entities::{FoxBundle, PigBundle};
 use temper_messages::chunk_calc::ChunkCalc;
-use temper_messages::load_chunk_entities::LoadChunkEntities;
 use temper_state::create_test_state;
 
 fn emit_chunk_calc_for(entity: Entity) -> impl FnMut(MessageWriter<ChunkCalc>) {
@@ -27,31 +27,9 @@ fn emit_chunk_calc_for(entity: Entity) -> impl FnMut(MessageWriter<ChunkCalc>) {
     }
 }
 
-fn emit_load_messages_for_known_chunks(
-    state: Res<temper_state::GlobalStateResource>,
-    mut query: Query<&mut ChunkReceiver>,
-    mut writer: MessageWriter<LoadChunkEntities>,
-) {
-    for mut receiver in query.iter_mut() {
-        while let Some((x, z)) = receiver.loading.pop_front() {
-            let chunk = ChunkPos::new(x, z);
-            receiver.loaded.insert((x, z));
-
-            if state
-                .0
-                .world
-                .chunk_exists(chunk, Dimension::Overworld)
-                .expect("chunk existence check should succeed")
-            {
-                writer.write(LoadChunkEntities(chunk));
-            }
-        }
-    }
-}
-
 fn spawn_test_player(world: &mut World, position: Position, loaded_chunk: ChunkPos) -> Entity {
     let mut receiver = ChunkReceiver::default();
-    receiver.loaded.insert((loaded_chunk.x(), loaded_chunk.z()));
+    receiver.loaded.insert(loaded_chunk);
 
     world
         .spawn((
@@ -157,11 +135,7 @@ fn multiple_entities_in_one_chunk_reload_together_when_player_returns() {
     );
 
     {
-        let saved_chunk = state
-            .0
-            .world
-            .get_chunk(chunk, Dimension::Overworld)
-            .expect("saved chunk should exist");
+        let saved_chunk = wait_for_saved_chunk(&state, chunk);
         assert_eq!(
             saved_chunk.entities.len(),
             2,

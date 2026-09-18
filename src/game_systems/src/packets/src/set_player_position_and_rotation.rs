@@ -30,8 +30,8 @@ pub fn handle(
             let on_ground = event.flags & 0x01 != 0;
 
             // Check if chunk changed
-            let old_chunk = (pos.x as i32 >> 4, pos.z as i32 >> 4);
-            let new_chunk = (new_pos.x as i32 >> 4, new_pos.z as i32 >> 4);
+            let old_chunk = pos.chunk();
+            let new_chunk = new_pos.chunk();
             if old_chunk != new_chunk {
                 chunk_calc_messages.write(ChunkCalc(eid));
             }

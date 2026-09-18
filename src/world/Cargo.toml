@@ -1,7 +1,7 @@
 [package]
 name = "temper-world"
 description = "Temper specific world definition and implementation of a Minecraft World and related logic."
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 
 [dependencies]
@@ -20,15 +20,19 @@ dashmap = { workspace = true }
 rand = { workspace = true }
 uuid = { workspace = true }
 temper-world-format = { workspace = true }
+gen-core = { path = "./gen/core" }
+gen-scheduler = { path = "./gen/scheduler" }
 world-gen = { path = "./gen" }
 world-db = { path = "./db" }
 temper-core = { workspace = true }
+crossbeam-channel = {workspace = true }
 
 
 
 [dev-dependencies]
 criterion = { workspace = true }
 rand = { workspace = true }
+tempfile = { workspace = true }
 
 [[bench]]
 name = "world_bench"

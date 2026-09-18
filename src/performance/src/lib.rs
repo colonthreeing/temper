@@ -43,7 +43,9 @@ pub struct ServerPerformance {
 impl ServerPerformance {
     pub fn new(tps: u32) -> Self {
         if !sysinfo::IS_SUPPORTED_SYSTEM {
-            warn!("System does not support 'sysinfo', metrics are likely to be inaccurate or unavailable");
+            warn!(
+                "System does not support 'sysinfo', metrics are likely to be inaccurate or unavailable"
+            );
         }
 
         Self {

@@ -25,13 +25,15 @@ pub fn keep_alive_system(
             continue;
         }
 
-        let elapsed = now.duration_since(tracker.last_received_keep_alive);
+        let time_since_response = now.duration_since(tracker.last_received_keep_alive);
+        let time_since_request = now.duration_since(tracker.last_sent_keep_alive);
 
-        // Kill connection if timed out
-        if elapsed > TIMEOUT {
+        // Kill connection if the client has not answered the current request.
+        if keep_alive_timed_out(&tracker, now, TIMEOUT) {
             warn!(
-                "Killing connection for {}, it's been {:?} since last keepalive response",
-                entity, elapsed
+                "Killing connection for {}, keepalive response is {:?} overdue",
+                entity,
+                time_since_request - TIMEOUT,
             );
             state
                 .0
@@ -41,7 +43,7 @@ pub fn keep_alive_system(
         }
 
         // Send keepalive if needed
-        if elapsed >= KEEPALIVE_INTERVAL && tracker.has_received_keep_alive {
+        if tracker.has_received_keep_alive && time_since_response >= KEEPALIVE_INTERVAL {
             let timestamp = rand::random::<i64>(); // or use a counter
             let packet =
                 temper_protocol::outgoing::keep_alive::OutgoingKeepAlivePacket { timestamp };
@@ -54,5 +56,48 @@ pub fn keep_alive_system(
             tracker.has_received_keep_alive = false;
             tracker.last_sent_keep_alive = now;
         }
+    }
+}
+
+fn keep_alive_timed_out(
+    tracker: &KeepAliveTracker,
+    now: std::time::Instant,
+    timeout: Duration,
+) -> bool {
+    !tracker.has_received_keep_alive && now.duration_since(tracker.last_sent_keep_alive) > timeout
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn does_not_timeout_before_sending_a_keepalive_request() {
+        let now = std::time::Instant::now();
+        let tracker = KeepAliveTracker {
+            last_sent_keep_alive_id: 0,
+            last_received_keep_alive: now - Duration::from_secs(60),
+            last_sent_keep_alive: now - Duration::from_secs(60),
+            has_received_keep_alive: true,
+        };
+
+        assert!(!keep_alive_timed_out(
+            &tracker,
+            now,
+            Duration::from_secs(15),
+        ));
+    }
+
+    #[test]
+    fn times_out_unanswered_keepalive_requests() {
+        let now = std::time::Instant::now();
+        let tracker = KeepAliveTracker {
+            last_sent_keep_alive_id: 4,
+            last_received_keep_alive: now - Duration::from_secs(60),
+            last_sent_keep_alive: now - Duration::from_secs(16),
+            has_received_keep_alive: false,
+        };
+
+        assert!(keep_alive_timed_out(&tracker, now, Duration::from_secs(15),));
     }
 }

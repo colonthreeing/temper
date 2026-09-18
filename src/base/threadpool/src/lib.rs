@@ -6,6 +6,7 @@ use std::time::Duration;
 /// A thread pool for managing and executing tasks concurrently.
 pub struct ThreadPool {
     pool: Arc<rusty_pool::ThreadPool>,
+    core_count: usize,
 }
 
 /// A batch of tasks to be executed in the thread pool.
@@ -35,7 +36,14 @@ impl ThreadPool {
             Duration::from_secs(60),
         ));
         pool.start_core_threads();
-        Self { pool }
+        Self { pool, core_count }
+    }
+
+    /// The number of worker threads this pool was built with. Callers that
+    /// need to bound how much work they queue can scale against this rather
+    /// than recomputing the core count themselves.
+    pub fn core_count(&self) -> usize {
+        self.core_count
     }
 
     /// Creates a new batch of tasks to be executed in the thread pool.

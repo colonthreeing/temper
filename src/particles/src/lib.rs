@@ -20,10 +20,30 @@ pub enum ParticleType {
         blockstate: BlockStateId,
     },
     Bubble,
+    SulfurBubbles,
+    NoxiousGas,
+    NoxiousGasCloud,
+    Geyser {
+        water_blocks: i32,
+    },
+    GeyserBase {
+        water_blocks: i32,
+        burst_impulse_base: i32,
+    },
+    GeyserPoof {
+        water_blocks: i32,
+        burst_impulse_base: i32,
+    },
+    GeyserPlume {
+        water_blocks: i32,
+    },
     Cloud,
+    CopperFireFlame,
     Crit,
     DamageIndicator,
-    DragonBreath,
+    DragonBreath {
+        power: f32,
+    },
     DrippingLava,
     FallingLava,
     LandingLava,
@@ -38,7 +58,10 @@ pub enum ParticleType {
         to: Color,
         scale: f32,
     },
-    Effect,
+    Effect {
+        color: Color,
+        power: f32,
+    },
     ElderGuardian,
     EnchantedHit,
     Enchant,
@@ -72,11 +95,16 @@ pub enum ParticleType {
     SculkChargePop,
     SoulFireFlame,
     Soul,
-    Flash,
+    Flash {
+        color: Color,
+    },
     HappyVillager,
     Composter,
     Heart,
-    InstantEffect,
+    InstantEffect {
+        color: Color,
+        power: f32,
+    },
     Item {
         item: InventorySlot,
     },
@@ -95,7 +123,8 @@ pub enum ParticleType {
         color: Color,
         duration: VarInt,
     },
-
+    PauseMobGrowth,
+    ResetMobGrowth,
     ItemSlime,
     ItemCobweb,
     ItemSnowball,
@@ -167,6 +196,7 @@ pub enum ParticleType {
         blockstate: BlockStateId,
     },
     Firefly,
+    SulfurCubeGoo,
 }
 
 /// Source type for the `vibration` particle.

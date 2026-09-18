@@ -1,19 +1,17 @@
 pub mod bossbar;
 mod credits;
-pub mod deop;
+mod damage;
 pub mod echo;
-pub mod fly;
 pub mod gamemode;
 mod kill;
-pub mod nested;
+mod motion;
+mod noise;
 pub mod op;
-pub mod permissions;
-mod say;
-pub mod spawn;
+mod show_heightmap;
 mod stop;
-pub mod time;
+mod summon;
+mod time;
 mod tp;
-pub mod tps;
 
 /// Static library initialisation shenanigans.
 pub fn init() {}

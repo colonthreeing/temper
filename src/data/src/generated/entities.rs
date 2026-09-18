@@ -308,7 +308,7 @@ impl EntityType {
         fire_immune: false,
         category: &MobCategory::CREATURE,
         can_spawn_far_from_player: true,
-        dimension: [0.7f32, 0.6f32],
+        dimension: [0.55f32, 0.5f32],
         eye_height: 0.3f32,
         spawn_restriction: SpawnRestriction {
             location: SpawnLocation::Unrestricted,
@@ -468,8 +468,27 @@ impl EntityType {
         },
         resource_name: "camel",
     };
-    pub const CAT: EntityType = EntityType {
+    pub const CAMEL_HUSK: EntityType = EntityType {
         id: 20,
+        max_health: Some(32f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 6i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MONSTER,
+        can_spawn_far_from_player: false,
+        dimension: [1.7f32, 2.375f32],
+        eye_height: 2.275f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::OnGround,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "camel_husk",
+    };
+    pub const CAT: EntityType = EntityType {
+        id: 21,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -488,7 +507,7 @@ impl EntityType {
         resource_name: "cat",
     };
     pub const CAVE_SPIDER: EntityType = EntityType {
-        id: 21,
+        id: 22,
         max_health: Some(12f32),
         attackable: Some(true),
         mob: true,
@@ -507,7 +526,7 @@ impl EntityType {
         resource_name: "cave_spider",
     };
     pub const CHERRY_BOAT: EntityType = EntityType {
-        id: 22,
+        id: 23,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -526,7 +545,7 @@ impl EntityType {
         resource_name: "cherry_boat",
     };
     pub const CHERRY_CHEST_BOAT: EntityType = EntityType {
-        id: 23,
+        id: 24,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -545,7 +564,7 @@ impl EntityType {
         resource_name: "cherry_chest_boat",
     };
     pub const CHEST_MINECART: EntityType = EntityType {
-        id: 24,
+        id: 25,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -564,7 +583,7 @@ impl EntityType {
         resource_name: "chest_minecart",
     };
     pub const CHICKEN: EntityType = EntityType {
-        id: 25,
+        id: 26,
         max_health: Some(4f32),
         attackable: Some(true),
         mob: true,
@@ -583,7 +602,7 @@ impl EntityType {
         resource_name: "chicken",
     };
     pub const COD: EntityType = EntityType {
-        id: 26,
+        id: 27,
         max_health: Some(3f32),
         attackable: Some(true),
         mob: true,
@@ -602,7 +621,7 @@ impl EntityType {
         resource_name: "cod",
     };
     pub const COMMAND_BLOCK_MINECART: EntityType = EntityType {
-        id: 27,
+        id: 29,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -620,8 +639,27 @@ impl EntityType {
         },
         resource_name: "command_block_minecart",
     };
-    pub const COW: EntityType = EntityType {
+    pub const COPPER_GOLEM: EntityType = EntityType {
         id: 28,
+        max_health: Some(12f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 4i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MISC,
+        can_spawn_far_from_player: true,
+        dimension: [0.49f32, 0.98f32],
+        eye_height: 0.8125f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::Unrestricted,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "copper_golem",
+    };
+    pub const COW: EntityType = EntityType {
+        id: 30,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -640,7 +678,7 @@ impl EntityType {
         resource_name: "cow",
     };
     pub const CREAKING: EntityType = EntityType {
-        id: 29,
+        id: 31,
         max_health: Some(1f32),
         attackable: Some(true),
         mob: true,
@@ -659,7 +697,7 @@ impl EntityType {
         resource_name: "creaking",
     };
     pub const CREEPER: EntityType = EntityType {
-        id: 30,
+        id: 32,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -678,7 +716,7 @@ impl EntityType {
         resource_name: "creeper",
     };
     pub const DARK_OAK_BOAT: EntityType = EntityType {
-        id: 31,
+        id: 33,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -697,7 +735,7 @@ impl EntityType {
         resource_name: "dark_oak_boat",
     };
     pub const DARK_OAK_CHEST_BOAT: EntityType = EntityType {
-        id: 32,
+        id: 34,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -716,7 +754,7 @@ impl EntityType {
         resource_name: "dark_oak_chest_boat",
     };
     pub const DOLPHIN: EntityType = EntityType {
-        id: 33,
+        id: 35,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -735,7 +773,7 @@ impl EntityType {
         resource_name: "dolphin",
     };
     pub const DONKEY: EntityType = EntityType {
-        id: 34,
+        id: 36,
         max_health: Some(53f32),
         attackable: Some(true),
         mob: true,
@@ -754,7 +792,7 @@ impl EntityType {
         resource_name: "donkey",
     };
     pub const DRAGON_FIREBALL: EntityType = EntityType {
-        id: 35,
+        id: 37,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -773,7 +811,7 @@ impl EntityType {
         resource_name: "dragon_fireball",
     };
     pub const DROWNED: EntityType = EntityType {
-        id: 36,
+        id: 38,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -792,7 +830,7 @@ impl EntityType {
         resource_name: "drowned",
     };
     pub const EGG: EntityType = EntityType {
-        id: 37,
+        id: 39,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -811,7 +849,7 @@ impl EntityType {
         resource_name: "egg",
     };
     pub const ELDER_GUARDIAN: EntityType = EntityType {
-        id: 38,
+        id: 40,
         max_health: Some(80f32),
         attackable: Some(true),
         mob: true,
@@ -830,7 +868,7 @@ impl EntityType {
         resource_name: "elder_guardian",
     };
     pub const END_CRYSTAL: EntityType = EntityType {
-        id: 43,
+        id: 45,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -849,7 +887,7 @@ impl EntityType {
         resource_name: "end_crystal",
     };
     pub const ENDER_DRAGON: EntityType = EntityType {
-        id: 41,
+        id: 43,
         max_health: Some(200f32),
         attackable: Some(true),
         mob: true,
@@ -868,7 +906,7 @@ impl EntityType {
         resource_name: "ender_dragon",
     };
     pub const ENDER_PEARL: EntityType = EntityType {
-        id: 42,
+        id: 44,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -887,7 +925,7 @@ impl EntityType {
         resource_name: "ender_pearl",
     };
     pub const ENDERMAN: EntityType = EntityType {
-        id: 39,
+        id: 41,
         max_health: Some(40f32),
         attackable: Some(true),
         mob: true,
@@ -906,7 +944,7 @@ impl EntityType {
         resource_name: "enderman",
     };
     pub const ENDERMITE: EntityType = EntityType {
-        id: 40,
+        id: 42,
         max_health: Some(8f32),
         attackable: Some(true),
         mob: true,
@@ -925,7 +963,7 @@ impl EntityType {
         resource_name: "endermite",
     };
     pub const EVOKER: EntityType = EntityType {
-        id: 44,
+        id: 46,
         max_health: Some(24f32),
         attackable: Some(true),
         mob: true,
@@ -944,7 +982,7 @@ impl EntityType {
         resource_name: "evoker",
     };
     pub const EVOKER_FANGS: EntityType = EntityType {
-        id: 45,
+        id: 47,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -963,7 +1001,7 @@ impl EntityType {
         resource_name: "evoker_fangs",
     };
     pub const EXPERIENCE_BOTTLE: EntityType = EntityType {
-        id: 46,
+        id: 48,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -982,7 +1020,7 @@ impl EntityType {
         resource_name: "experience_bottle",
     };
     pub const EXPERIENCE_ORB: EntityType = EntityType {
-        id: 47,
+        id: 49,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -1001,7 +1039,7 @@ impl EntityType {
         resource_name: "experience_orb",
     };
     pub const EYE_OF_ENDER: EntityType = EntityType {
-        id: 48,
+        id: 50,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -1020,7 +1058,7 @@ impl EntityType {
         resource_name: "eye_of_ender",
     };
     pub const FALLING_BLOCK: EntityType = EntityType {
-        id: 49,
+        id: 51,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -1039,7 +1077,7 @@ impl EntityType {
         resource_name: "falling_block",
     };
     pub const FIREBALL: EntityType = EntityType {
-        id: 50,
+        id: 52,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1058,7 +1096,7 @@ impl EntityType {
         resource_name: "fireball",
     };
     pub const FIREWORK_ROCKET: EntityType = EntityType {
-        id: 51,
+        id: 53,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -1077,7 +1115,7 @@ impl EntityType {
         resource_name: "firework_rocket",
     };
     pub const FISHING_BOBBER: EntityType = EntityType {
-        id: 150,
+        id: 157,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1096,7 +1134,7 @@ impl EntityType {
         resource_name: "fishing_bobber",
     };
     pub const FOX: EntityType = EntityType {
-        id: 52,
+        id: 54,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1115,7 +1153,7 @@ impl EntityType {
         resource_name: "fox",
     };
     pub const FROG: EntityType = EntityType {
-        id: 53,
+        id: 55,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1134,7 +1172,7 @@ impl EntityType {
         resource_name: "frog",
     };
     pub const FURNACE_MINECART: EntityType = EntityType {
-        id: 54,
+        id: 56,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1153,7 +1191,7 @@ impl EntityType {
         resource_name: "furnace_minecart",
     };
     pub const GHAST: EntityType = EntityType {
-        id: 55,
+        id: 57,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1172,7 +1210,7 @@ impl EntityType {
         resource_name: "ghast",
     };
     pub const GIANT: EntityType = EntityType {
-        id: 57,
+        id: 59,
         max_health: Some(100f32),
         attackable: Some(true),
         mob: true,
@@ -1191,7 +1229,7 @@ impl EntityType {
         resource_name: "giant",
     };
     pub const GLOW_ITEM_FRAME: EntityType = EntityType {
-        id: 58,
+        id: 60,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1210,7 +1248,7 @@ impl EntityType {
         resource_name: "glow_item_frame",
     };
     pub const GLOW_SQUID: EntityType = EntityType {
-        id: 59,
+        id: 61,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1229,7 +1267,7 @@ impl EntityType {
         resource_name: "glow_squid",
     };
     pub const GOAT: EntityType = EntityType {
-        id: 60,
+        id: 62,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1248,7 +1286,7 @@ impl EntityType {
         resource_name: "goat",
     };
     pub const GUARDIAN: EntityType = EntityType {
-        id: 61,
+        id: 63,
         max_health: Some(30f32),
         attackable: Some(true),
         mob: true,
@@ -1267,7 +1305,7 @@ impl EntityType {
         resource_name: "guardian",
     };
     pub const HAPPY_GHAST: EntityType = EntityType {
-        id: 56,
+        id: 58,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -1286,7 +1324,7 @@ impl EntityType {
         resource_name: "happy_ghast",
     };
     pub const HOGLIN: EntityType = EntityType {
-        id: 62,
+        id: 64,
         max_health: Some(40f32),
         attackable: Some(true),
         mob: true,
@@ -1305,7 +1343,7 @@ impl EntityType {
         resource_name: "hoglin",
     };
     pub const HOPPER_MINECART: EntityType = EntityType {
-        id: 63,
+        id: 65,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1324,7 +1362,7 @@ impl EntityType {
         resource_name: "hopper_minecart",
     };
     pub const HORSE: EntityType = EntityType {
-        id: 64,
+        id: 66,
         max_health: Some(53f32),
         attackable: Some(true),
         mob: true,
@@ -1343,7 +1381,7 @@ impl EntityType {
         resource_name: "horse",
     };
     pub const HUSK: EntityType = EntityType {
-        id: 65,
+        id: 67,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -1362,7 +1400,7 @@ impl EntityType {
         resource_name: "husk",
     };
     pub const ILLUSIONER: EntityType = EntityType {
-        id: 66,
+        id: 68,
         max_health: Some(32f32),
         attackable: Some(true),
         mob: true,
@@ -1381,7 +1419,7 @@ impl EntityType {
         resource_name: "illusioner",
     };
     pub const INTERACTION: EntityType = EntityType {
-        id: 67,
+        id: 69,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1400,7 +1438,7 @@ impl EntityType {
         resource_name: "interaction",
     };
     pub const IRON_GOLEM: EntityType = EntityType {
-        id: 68,
+        id: 70,
         max_health: Some(100f32),
         attackable: Some(true),
         mob: true,
@@ -1419,7 +1457,7 @@ impl EntityType {
         resource_name: "iron_golem",
     };
     pub const ITEM: EntityType = EntityType {
-        id: 69,
+        id: 71,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -1438,7 +1476,7 @@ impl EntityType {
         resource_name: "item",
     };
     pub const ITEM_DISPLAY: EntityType = EntityType {
-        id: 70,
+        id: 72,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1457,7 +1495,7 @@ impl EntityType {
         resource_name: "item_display",
     };
     pub const ITEM_FRAME: EntityType = EntityType {
-        id: 71,
+        id: 73,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1476,7 +1514,7 @@ impl EntityType {
         resource_name: "item_frame",
     };
     pub const JUNGLE_BOAT: EntityType = EntityType {
-        id: 72,
+        id: 74,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1495,7 +1533,7 @@ impl EntityType {
         resource_name: "jungle_boat",
     };
     pub const JUNGLE_CHEST_BOAT: EntityType = EntityType {
-        id: 73,
+        id: 75,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1514,7 +1552,7 @@ impl EntityType {
         resource_name: "jungle_chest_boat",
     };
     pub const LEASH_KNOT: EntityType = EntityType {
-        id: 74,
+        id: 76,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1533,7 +1571,7 @@ impl EntityType {
         resource_name: "leash_knot",
     };
     pub const LIGHTNING_BOLT: EntityType = EntityType {
-        id: 75,
+        id: 77,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1552,7 +1590,7 @@ impl EntityType {
         resource_name: "lightning_bolt",
     };
     pub const LINGERING_POTION: EntityType = EntityType {
-        id: 101,
+        id: 106,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1571,7 +1609,7 @@ impl EntityType {
         resource_name: "lingering_potion",
     };
     pub const LLAMA: EntityType = EntityType {
-        id: 76,
+        id: 78,
         max_health: Some(53f32),
         attackable: Some(true),
         mob: true,
@@ -1590,7 +1628,7 @@ impl EntityType {
         resource_name: "llama",
     };
     pub const LLAMA_SPIT: EntityType = EntityType {
-        id: 77,
+        id: 79,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1609,7 +1647,7 @@ impl EntityType {
         resource_name: "llama_spit",
     };
     pub const MAGMA_CUBE: EntityType = EntityType {
-        id: 78,
+        id: 80,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -1628,7 +1666,7 @@ impl EntityType {
         resource_name: "magma_cube",
     };
     pub const MANGROVE_BOAT: EntityType = EntityType {
-        id: 79,
+        id: 81,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1647,7 +1685,7 @@ impl EntityType {
         resource_name: "mangrove_boat",
     };
     pub const MANGROVE_CHEST_BOAT: EntityType = EntityType {
-        id: 80,
+        id: 82,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1665,8 +1703,27 @@ impl EntityType {
         },
         resource_name: "mangrove_chest_boat",
     };
+    pub const MANNEQUIN: EntityType = EntityType {
+        id: 83,
+        max_health: Some(20f32),
+        attackable: Some(true),
+        mob: false,
+        saveable: true,
+        limit_per_chunk: 0i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MISC,
+        can_spawn_far_from_player: true,
+        dimension: [0.6f32, 1.8f32],
+        eye_height: 1.62f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::Unrestricted,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "mannequin",
+    };
     pub const MARKER: EntityType = EntityType {
-        id: 81,
+        id: 84,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1685,7 +1742,7 @@ impl EntityType {
         resource_name: "marker",
     };
     pub const MINECART: EntityType = EntityType {
-        id: 82,
+        id: 85,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1704,7 +1761,7 @@ impl EntityType {
         resource_name: "minecart",
     };
     pub const MOOSHROOM: EntityType = EntityType {
-        id: 83,
+        id: 86,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1723,7 +1780,7 @@ impl EntityType {
         resource_name: "mooshroom",
     };
     pub const MULE: EntityType = EntityType {
-        id: 84,
+        id: 87,
         max_health: Some(53f32),
         attackable: Some(true),
         mob: true,
@@ -1741,8 +1798,27 @@ impl EntityType {
         },
         resource_name: "mule",
     };
+    pub const NAUTILUS: EntityType = EntityType {
+        id: 88,
+        max_health: Some(15f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 4i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::WATER_CREATURE,
+        can_spawn_far_from_player: false,
+        dimension: [0.875f32, 0.95f32],
+        eye_height: 0.2751f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::InWater,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "nautilus",
+    };
     pub const OAK_BOAT: EntityType = EntityType {
-        id: 85,
+        id: 89,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1761,7 +1837,7 @@ impl EntityType {
         resource_name: "oak_boat",
     };
     pub const OAK_CHEST_BOAT: EntityType = EntityType {
-        id: 86,
+        id: 90,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1780,7 +1856,7 @@ impl EntityType {
         resource_name: "oak_chest_boat",
     };
     pub const OCELOT: EntityType = EntityType {
-        id: 87,
+        id: 91,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1799,7 +1875,7 @@ impl EntityType {
         resource_name: "ocelot",
     };
     pub const OMINOUS_ITEM_SPAWNER: EntityType = EntityType {
-        id: 88,
+        id: 92,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1818,7 +1894,7 @@ impl EntityType {
         resource_name: "ominous_item_spawner",
     };
     pub const PAINTING: EntityType = EntityType {
-        id: 89,
+        id: 93,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1837,7 +1913,7 @@ impl EntityType {
         resource_name: "painting",
     };
     pub const PALE_OAK_BOAT: EntityType = EntityType {
-        id: 90,
+        id: 94,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1856,7 +1932,7 @@ impl EntityType {
         resource_name: "pale_oak_boat",
     };
     pub const PALE_OAK_CHEST_BOAT: EntityType = EntityType {
-        id: 91,
+        id: 95,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -1875,7 +1951,7 @@ impl EntityType {
         resource_name: "pale_oak_chest_boat",
     };
     pub const PANDA: EntityType = EntityType {
-        id: 92,
+        id: 96,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -1893,8 +1969,27 @@ impl EntityType {
         },
         resource_name: "panda",
     };
+    pub const PARCHED: EntityType = EntityType {
+        id: 97,
+        max_health: Some(16f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 4i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MONSTER,
+        can_spawn_far_from_player: false,
+        dimension: [0.6f32, 1.99f32],
+        eye_height: 1.74f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::OnGround,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "parched",
+    };
     pub const PARROT: EntityType = EntityType {
-        id: 93,
+        id: 98,
         max_health: Some(6f32),
         attackable: Some(true),
         mob: true,
@@ -1913,7 +2008,7 @@ impl EntityType {
         resource_name: "parrot",
     };
     pub const PHANTOM: EntityType = EntityType {
-        id: 94,
+        id: 99,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -1932,7 +2027,7 @@ impl EntityType {
         resource_name: "phantom",
     };
     pub const PIG: EntityType = EntityType {
-        id: 95,
+        id: 100,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -1951,7 +2046,7 @@ impl EntityType {
         resource_name: "pig",
     };
     pub const PIGLIN: EntityType = EntityType {
-        id: 96,
+        id: 101,
         max_health: Some(16f32),
         attackable: Some(true),
         mob: true,
@@ -1970,7 +2065,7 @@ impl EntityType {
         resource_name: "piglin",
     };
     pub const PIGLIN_BRUTE: EntityType = EntityType {
-        id: 97,
+        id: 102,
         max_health: Some(50f32),
         attackable: Some(true),
         mob: true,
@@ -1989,7 +2084,7 @@ impl EntityType {
         resource_name: "piglin_brute",
     };
     pub const PILLAGER: EntityType = EntityType {
-        id: 98,
+        id: 103,
         max_health: Some(24f32),
         attackable: Some(true),
         mob: true,
@@ -2008,7 +2103,7 @@ impl EntityType {
         resource_name: "pillager",
     };
     pub const PLAYER: EntityType = EntityType {
-        id: 149,
+        id: 156,
         max_health: None,
         attackable: None,
         mob: false,
@@ -2027,7 +2122,7 @@ impl EntityType {
         resource_name: "player",
     };
     pub const POLAR_BEAR: EntityType = EntityType {
-        id: 99,
+        id: 104,
         max_health: Some(30f32),
         attackable: Some(true),
         mob: true,
@@ -2046,7 +2141,7 @@ impl EntityType {
         resource_name: "polar_bear",
     };
     pub const PUFFERFISH: EntityType = EntityType {
-        id: 102,
+        id: 107,
         max_health: Some(3f32),
         attackable: Some(true),
         mob: true,
@@ -2065,7 +2160,7 @@ impl EntityType {
         resource_name: "pufferfish",
     };
     pub const RABBIT: EntityType = EntityType {
-        id: 103,
+        id: 108,
         max_health: Some(3f32),
         attackable: Some(true),
         mob: true,
@@ -2075,8 +2170,8 @@ impl EntityType {
         fire_immune: false,
         category: &MobCategory::CREATURE,
         can_spawn_far_from_player: true,
-        dimension: [0.4f32, 0.5f32],
-        eye_height: 0.425f32,
+        dimension: [0.49f32, 0.6f32],
+        eye_height: 0.59f32,
         spawn_restriction: SpawnRestriction {
             location: SpawnLocation::OnGround,
             heightmap: HeightMap::MotionBlockingNoLeaves,
@@ -2084,7 +2179,7 @@ impl EntityType {
         resource_name: "rabbit",
     };
     pub const RAVAGER: EntityType = EntityType {
-        id: 104,
+        id: 109,
         max_health: Some(100f32),
         attackable: Some(true),
         mob: true,
@@ -2103,7 +2198,7 @@ impl EntityType {
         resource_name: "ravager",
     };
     pub const SALMON: EntityType = EntityType {
-        id: 105,
+        id: 110,
         max_health: Some(3f32),
         attackable: Some(true),
         mob: true,
@@ -2122,7 +2217,7 @@ impl EntityType {
         resource_name: "salmon",
     };
     pub const SHEEP: EntityType = EntityType {
-        id: 106,
+        id: 111,
         max_health: Some(8f32),
         attackable: Some(true),
         mob: true,
@@ -2141,7 +2236,7 @@ impl EntityType {
         resource_name: "sheep",
     };
     pub const SHULKER: EntityType = EntityType {
-        id: 107,
+        id: 112,
         max_health: Some(30f32),
         attackable: Some(true),
         mob: true,
@@ -2160,7 +2255,7 @@ impl EntityType {
         resource_name: "shulker",
     };
     pub const SHULKER_BULLET: EntityType = EntityType {
-        id: 108,
+        id: 113,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2179,7 +2274,7 @@ impl EntityType {
         resource_name: "shulker_bullet",
     };
     pub const SILVERFISH: EntityType = EntityType {
-        id: 109,
+        id: 114,
         max_health: Some(8f32),
         attackable: Some(true),
         mob: true,
@@ -2198,7 +2293,7 @@ impl EntityType {
         resource_name: "silverfish",
     };
     pub const SKELETON: EntityType = EntityType {
-        id: 110,
+        id: 115,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2217,7 +2312,7 @@ impl EntityType {
         resource_name: "skeleton",
     };
     pub const SKELETON_HORSE: EntityType = EntityType {
-        id: 111,
+        id: 116,
         max_health: Some(15f32),
         attackable: Some(true),
         mob: true,
@@ -2236,7 +2331,7 @@ impl EntityType {
         resource_name: "skeleton_horse",
     };
     pub const SLIME: EntityType = EntityType {
-        id: 112,
+        id: 117,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2255,7 +2350,7 @@ impl EntityType {
         resource_name: "slime",
     };
     pub const SMALL_FIREBALL: EntityType = EntityType {
-        id: 113,
+        id: 118,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2274,7 +2369,7 @@ impl EntityType {
         resource_name: "small_fireball",
     };
     pub const SNIFFER: EntityType = EntityType {
-        id: 114,
+        id: 119,
         max_health: Some(14f32),
         attackable: Some(true),
         mob: true,
@@ -2293,7 +2388,7 @@ impl EntityType {
         resource_name: "sniffer",
     };
     pub const SNOW_GOLEM: EntityType = EntityType {
-        id: 116,
+        id: 121,
         max_health: Some(4f32),
         attackable: Some(true),
         mob: true,
@@ -2312,7 +2407,7 @@ impl EntityType {
         resource_name: "snow_golem",
     };
     pub const SNOWBALL: EntityType = EntityType {
-        id: 115,
+        id: 120,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2331,7 +2426,7 @@ impl EntityType {
         resource_name: "snowball",
     };
     pub const SPAWNER_MINECART: EntityType = EntityType {
-        id: 117,
+        id: 122,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2350,7 +2445,7 @@ impl EntityType {
         resource_name: "spawner_minecart",
     };
     pub const SPECTRAL_ARROW: EntityType = EntityType {
-        id: 118,
+        id: 123,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -2369,7 +2464,7 @@ impl EntityType {
         resource_name: "spectral_arrow",
     };
     pub const SPIDER: EntityType = EntityType {
-        id: 119,
+        id: 124,
         max_health: Some(16f32),
         attackable: Some(true),
         mob: true,
@@ -2388,7 +2483,7 @@ impl EntityType {
         resource_name: "spider",
     };
     pub const SPLASH_POTION: EntityType = EntityType {
-        id: 100,
+        id: 105,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2407,7 +2502,7 @@ impl EntityType {
         resource_name: "splash_potion",
     };
     pub const SPRUCE_BOAT: EntityType = EntityType {
-        id: 120,
+        id: 125,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2426,7 +2521,7 @@ impl EntityType {
         resource_name: "spruce_boat",
     };
     pub const SPRUCE_CHEST_BOAT: EntityType = EntityType {
-        id: 121,
+        id: 126,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2445,7 +2540,7 @@ impl EntityType {
         resource_name: "spruce_chest_boat",
     };
     pub const SQUID: EntityType = EntityType {
-        id: 122,
+        id: 127,
         max_health: Some(10f32),
         attackable: Some(true),
         mob: true,
@@ -2464,7 +2559,7 @@ impl EntityType {
         resource_name: "squid",
     };
     pub const STRAY: EntityType = EntityType {
-        id: 123,
+        id: 128,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2483,7 +2578,7 @@ impl EntityType {
         resource_name: "stray",
     };
     pub const STRIDER: EntityType = EntityType {
-        id: 124,
+        id: 129,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2501,8 +2596,27 @@ impl EntityType {
         },
         resource_name: "strider",
     };
+    pub const SULFUR_CUBE: EntityType = EntityType {
+        id: 130,
+        max_health: Some(20f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 4i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MONSTER,
+        can_spawn_far_from_player: false,
+        dimension: [0.49f32, 0.49f32],
+        eye_height: 0.175f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::OnGround,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "sulfur_cube",
+    };
     pub const TADPOLE: EntityType = EntityType {
-        id: 125,
+        id: 131,
         max_health: Some(6f32),
         attackable: Some(true),
         mob: true,
@@ -2521,7 +2635,7 @@ impl EntityType {
         resource_name: "tadpole",
     };
     pub const TEXT_DISPLAY: EntityType = EntityType {
-        id: 126,
+        id: 132,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2540,7 +2654,7 @@ impl EntityType {
         resource_name: "text_display",
     };
     pub const TNT: EntityType = EntityType {
-        id: 127,
+        id: 133,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2559,7 +2673,7 @@ impl EntityType {
         resource_name: "tnt",
     };
     pub const TNT_MINECART: EntityType = EntityType {
-        id: 128,
+        id: 134,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2578,7 +2692,7 @@ impl EntityType {
         resource_name: "tnt_minecart",
     };
     pub const TRADER_LLAMA: EntityType = EntityType {
-        id: 129,
+        id: 135,
         max_health: Some(53f32),
         attackable: Some(true),
         mob: true,
@@ -2597,7 +2711,7 @@ impl EntityType {
         resource_name: "trader_llama",
     };
     pub const TRIDENT: EntityType = EntityType {
-        id: 130,
+        id: 136,
         max_health: None,
         attackable: Some(false),
         mob: false,
@@ -2616,7 +2730,7 @@ impl EntityType {
         resource_name: "trident",
     };
     pub const TROPICAL_FISH: EntityType = EntityType {
-        id: 131,
+        id: 137,
         max_health: Some(3f32),
         attackable: Some(true),
         mob: true,
@@ -2635,7 +2749,7 @@ impl EntityType {
         resource_name: "tropical_fish",
     };
     pub const TURTLE: EntityType = EntityType {
-        id: 132,
+        id: 138,
         max_health: Some(30f32),
         attackable: Some(true),
         mob: true,
@@ -2654,7 +2768,7 @@ impl EntityType {
         resource_name: "turtle",
     };
     pub const VEX: EntityType = EntityType {
-        id: 133,
+        id: 139,
         max_health: Some(14f32),
         attackable: Some(true),
         mob: true,
@@ -2673,7 +2787,7 @@ impl EntityType {
         resource_name: "vex",
     };
     pub const VILLAGER: EntityType = EntityType {
-        id: 134,
+        id: 140,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2692,7 +2806,7 @@ impl EntityType {
         resource_name: "villager",
     };
     pub const VINDICATOR: EntityType = EntityType {
-        id: 135,
+        id: 141,
         max_health: Some(24f32),
         attackable: Some(true),
         mob: true,
@@ -2711,7 +2825,7 @@ impl EntityType {
         resource_name: "vindicator",
     };
     pub const WANDERING_TRADER: EntityType = EntityType {
-        id: 136,
+        id: 142,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2730,7 +2844,7 @@ impl EntityType {
         resource_name: "wandering_trader",
     };
     pub const WARDEN: EntityType = EntityType {
-        id: 137,
+        id: 143,
         max_health: Some(500f32),
         attackable: Some(true),
         mob: true,
@@ -2749,7 +2863,7 @@ impl EntityType {
         resource_name: "warden",
     };
     pub const WIND_CHARGE: EntityType = EntityType {
-        id: 138,
+        id: 144,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2768,7 +2882,7 @@ impl EntityType {
         resource_name: "wind_charge",
     };
     pub const WITCH: EntityType = EntityType {
-        id: 139,
+        id: 145,
         max_health: Some(26f32),
         attackable: Some(true),
         mob: true,
@@ -2787,7 +2901,7 @@ impl EntityType {
         resource_name: "witch",
     };
     pub const WITHER: EntityType = EntityType {
-        id: 140,
+        id: 146,
         max_health: Some(300f32),
         attackable: Some(true),
         mob: true,
@@ -2806,7 +2920,7 @@ impl EntityType {
         resource_name: "wither",
     };
     pub const WITHER_SKELETON: EntityType = EntityType {
-        id: 141,
+        id: 147,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2825,7 +2939,7 @@ impl EntityType {
         resource_name: "wither_skeleton",
     };
     pub const WITHER_SKULL: EntityType = EntityType {
-        id: 142,
+        id: 148,
         max_health: None,
         attackable: Some(true),
         mob: false,
@@ -2844,7 +2958,7 @@ impl EntityType {
         resource_name: "wither_skull",
     };
     pub const WOLF: EntityType = EntityType {
-        id: 143,
+        id: 149,
         max_health: Some(8f32),
         attackable: Some(true),
         mob: true,
@@ -2863,7 +2977,7 @@ impl EntityType {
         resource_name: "wolf",
     };
     pub const ZOGLIN: EntityType = EntityType {
-        id: 144,
+        id: 150,
         max_health: Some(40f32),
         attackable: Some(true),
         mob: true,
@@ -2882,7 +2996,7 @@ impl EntityType {
         resource_name: "zoglin",
     };
     pub const ZOMBIE: EntityType = EntityType {
-        id: 145,
+        id: 151,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2901,16 +3015,16 @@ impl EntityType {
         resource_name: "zombie",
     };
     pub const ZOMBIE_HORSE: EntityType = EntityType {
-        id: 146,
-        max_health: Some(15f32),
+        id: 152,
+        max_health: Some(25f32),
         attackable: Some(true),
         mob: true,
         saveable: true,
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
-        can_spawn_far_from_player: true,
+        category: &MobCategory::MONSTER,
+        can_spawn_far_from_player: false,
         dimension: [1.3964844f32, 1.6f32],
         eye_height: 1.52f32,
         spawn_restriction: SpawnRestriction {
@@ -2919,8 +3033,27 @@ impl EntityType {
         },
         resource_name: "zombie_horse",
     };
+    pub const ZOMBIE_NAUTILUS: EntityType = EntityType {
+        id: 153,
+        max_health: Some(15f32),
+        attackable: Some(true),
+        mob: true,
+        saveable: true,
+        limit_per_chunk: 4i32,
+        summonable: true,
+        fire_immune: false,
+        category: &MobCategory::MONSTER,
+        can_spawn_far_from_player: false,
+        dimension: [0.875f32, 0.95f32],
+        eye_height: 0.2751f32,
+        spawn_restriction: SpawnRestriction {
+            location: SpawnLocation::Unrestricted,
+            heightmap: HeightMap::MotionBlockingNoLeaves,
+        },
+        resource_name: "zombie_nautilus",
+    };
     pub const ZOMBIE_VILLAGER: EntityType = EntityType {
-        id: 147,
+        id: 154,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2939,7 +3072,7 @@ impl EntityType {
         resource_name: "zombie_villager",
     };
     pub const ZOMBIFIED_PIGLIN: EntityType = EntityType {
-        id: 148,
+        id: 155,
         max_health: Some(20f32),
         attackable: Some(true),
         mob: true,
@@ -2979,137 +3112,144 @@ impl EntityType {
             17 => Some(&Self::BREEZE),
             18 => Some(&Self::BREEZE_WIND_CHARGE),
             19 => Some(&Self::CAMEL),
-            20 => Some(&Self::CAT),
-            21 => Some(&Self::CAVE_SPIDER),
-            22 => Some(&Self::CHERRY_BOAT),
-            23 => Some(&Self::CHERRY_CHEST_BOAT),
-            24 => Some(&Self::CHEST_MINECART),
-            25 => Some(&Self::CHICKEN),
-            26 => Some(&Self::COD),
-            27 => Some(&Self::COMMAND_BLOCK_MINECART),
-            28 => Some(&Self::COW),
-            29 => Some(&Self::CREAKING),
-            30 => Some(&Self::CREEPER),
-            31 => Some(&Self::DARK_OAK_BOAT),
-            32 => Some(&Self::DARK_OAK_CHEST_BOAT),
-            33 => Some(&Self::DOLPHIN),
-            34 => Some(&Self::DONKEY),
-            35 => Some(&Self::DRAGON_FIREBALL),
-            36 => Some(&Self::DROWNED),
-            37 => Some(&Self::EGG),
-            38 => Some(&Self::ELDER_GUARDIAN),
-            43 => Some(&Self::END_CRYSTAL),
-            41 => Some(&Self::ENDER_DRAGON),
-            42 => Some(&Self::ENDER_PEARL),
-            39 => Some(&Self::ENDERMAN),
-            40 => Some(&Self::ENDERMITE),
-            44 => Some(&Self::EVOKER),
-            45 => Some(&Self::EVOKER_FANGS),
-            46 => Some(&Self::EXPERIENCE_BOTTLE),
-            47 => Some(&Self::EXPERIENCE_ORB),
-            48 => Some(&Self::EYE_OF_ENDER),
-            49 => Some(&Self::FALLING_BLOCK),
-            50 => Some(&Self::FIREBALL),
-            51 => Some(&Self::FIREWORK_ROCKET),
-            150 => Some(&Self::FISHING_BOBBER),
-            52 => Some(&Self::FOX),
-            53 => Some(&Self::FROG),
-            54 => Some(&Self::FURNACE_MINECART),
-            55 => Some(&Self::GHAST),
-            57 => Some(&Self::GIANT),
-            58 => Some(&Self::GLOW_ITEM_FRAME),
-            59 => Some(&Self::GLOW_SQUID),
-            60 => Some(&Self::GOAT),
-            61 => Some(&Self::GUARDIAN),
-            56 => Some(&Self::HAPPY_GHAST),
-            62 => Some(&Self::HOGLIN),
-            63 => Some(&Self::HOPPER_MINECART),
-            64 => Some(&Self::HORSE),
-            65 => Some(&Self::HUSK),
-            66 => Some(&Self::ILLUSIONER),
-            67 => Some(&Self::INTERACTION),
-            68 => Some(&Self::IRON_GOLEM),
-            69 => Some(&Self::ITEM),
-            70 => Some(&Self::ITEM_DISPLAY),
-            71 => Some(&Self::ITEM_FRAME),
-            72 => Some(&Self::JUNGLE_BOAT),
-            73 => Some(&Self::JUNGLE_CHEST_BOAT),
-            74 => Some(&Self::LEASH_KNOT),
-            75 => Some(&Self::LIGHTNING_BOLT),
-            101 => Some(&Self::LINGERING_POTION),
-            76 => Some(&Self::LLAMA),
-            77 => Some(&Self::LLAMA_SPIT),
-            78 => Some(&Self::MAGMA_CUBE),
-            79 => Some(&Self::MANGROVE_BOAT),
-            80 => Some(&Self::MANGROVE_CHEST_BOAT),
-            81 => Some(&Self::MARKER),
-            82 => Some(&Self::MINECART),
-            83 => Some(&Self::MOOSHROOM),
-            84 => Some(&Self::MULE),
-            85 => Some(&Self::OAK_BOAT),
-            86 => Some(&Self::OAK_CHEST_BOAT),
-            87 => Some(&Self::OCELOT),
-            88 => Some(&Self::OMINOUS_ITEM_SPAWNER),
-            89 => Some(&Self::PAINTING),
-            90 => Some(&Self::PALE_OAK_BOAT),
-            91 => Some(&Self::PALE_OAK_CHEST_BOAT),
-            92 => Some(&Self::PANDA),
-            93 => Some(&Self::PARROT),
-            94 => Some(&Self::PHANTOM),
-            95 => Some(&Self::PIG),
-            96 => Some(&Self::PIGLIN),
-            97 => Some(&Self::PIGLIN_BRUTE),
-            98 => Some(&Self::PILLAGER),
-            149 => Some(&Self::PLAYER),
-            99 => Some(&Self::POLAR_BEAR),
-            102 => Some(&Self::PUFFERFISH),
-            103 => Some(&Self::RABBIT),
-            104 => Some(&Self::RAVAGER),
-            105 => Some(&Self::SALMON),
-            106 => Some(&Self::SHEEP),
-            107 => Some(&Self::SHULKER),
-            108 => Some(&Self::SHULKER_BULLET),
-            109 => Some(&Self::SILVERFISH),
-            110 => Some(&Self::SKELETON),
-            111 => Some(&Self::SKELETON_HORSE),
-            112 => Some(&Self::SLIME),
-            113 => Some(&Self::SMALL_FIREBALL),
-            114 => Some(&Self::SNIFFER),
-            116 => Some(&Self::SNOW_GOLEM),
-            115 => Some(&Self::SNOWBALL),
-            117 => Some(&Self::SPAWNER_MINECART),
-            118 => Some(&Self::SPECTRAL_ARROW),
-            119 => Some(&Self::SPIDER),
-            100 => Some(&Self::SPLASH_POTION),
-            120 => Some(&Self::SPRUCE_BOAT),
-            121 => Some(&Self::SPRUCE_CHEST_BOAT),
-            122 => Some(&Self::SQUID),
-            123 => Some(&Self::STRAY),
-            124 => Some(&Self::STRIDER),
-            125 => Some(&Self::TADPOLE),
-            126 => Some(&Self::TEXT_DISPLAY),
-            127 => Some(&Self::TNT),
-            128 => Some(&Self::TNT_MINECART),
-            129 => Some(&Self::TRADER_LLAMA),
-            130 => Some(&Self::TRIDENT),
-            131 => Some(&Self::TROPICAL_FISH),
-            132 => Some(&Self::TURTLE),
-            133 => Some(&Self::VEX),
-            134 => Some(&Self::VILLAGER),
-            135 => Some(&Self::VINDICATOR),
-            136 => Some(&Self::WANDERING_TRADER),
-            137 => Some(&Self::WARDEN),
-            138 => Some(&Self::WIND_CHARGE),
-            139 => Some(&Self::WITCH),
-            140 => Some(&Self::WITHER),
-            141 => Some(&Self::WITHER_SKELETON),
-            142 => Some(&Self::WITHER_SKULL),
-            143 => Some(&Self::WOLF),
-            144 => Some(&Self::ZOGLIN),
-            145 => Some(&Self::ZOMBIE),
-            146 => Some(&Self::ZOMBIE_HORSE),
-            147 => Some(&Self::ZOMBIE_VILLAGER),
-            148 => Some(&Self::ZOMBIFIED_PIGLIN),
+            20 => Some(&Self::CAMEL_HUSK),
+            21 => Some(&Self::CAT),
+            22 => Some(&Self::CAVE_SPIDER),
+            23 => Some(&Self::CHERRY_BOAT),
+            24 => Some(&Self::CHERRY_CHEST_BOAT),
+            25 => Some(&Self::CHEST_MINECART),
+            26 => Some(&Self::CHICKEN),
+            27 => Some(&Self::COD),
+            29 => Some(&Self::COMMAND_BLOCK_MINECART),
+            28 => Some(&Self::COPPER_GOLEM),
+            30 => Some(&Self::COW),
+            31 => Some(&Self::CREAKING),
+            32 => Some(&Self::CREEPER),
+            33 => Some(&Self::DARK_OAK_BOAT),
+            34 => Some(&Self::DARK_OAK_CHEST_BOAT),
+            35 => Some(&Self::DOLPHIN),
+            36 => Some(&Self::DONKEY),
+            37 => Some(&Self::DRAGON_FIREBALL),
+            38 => Some(&Self::DROWNED),
+            39 => Some(&Self::EGG),
+            40 => Some(&Self::ELDER_GUARDIAN),
+            45 => Some(&Self::END_CRYSTAL),
+            43 => Some(&Self::ENDER_DRAGON),
+            44 => Some(&Self::ENDER_PEARL),
+            41 => Some(&Self::ENDERMAN),
+            42 => Some(&Self::ENDERMITE),
+            46 => Some(&Self::EVOKER),
+            47 => Some(&Self::EVOKER_FANGS),
+            48 => Some(&Self::EXPERIENCE_BOTTLE),
+            49 => Some(&Self::EXPERIENCE_ORB),
+            50 => Some(&Self::EYE_OF_ENDER),
+            51 => Some(&Self::FALLING_BLOCK),
+            52 => Some(&Self::FIREBALL),
+            53 => Some(&Self::FIREWORK_ROCKET),
+            157 => Some(&Self::FISHING_BOBBER),
+            54 => Some(&Self::FOX),
+            55 => Some(&Self::FROG),
+            56 => Some(&Self::FURNACE_MINECART),
+            57 => Some(&Self::GHAST),
+            59 => Some(&Self::GIANT),
+            60 => Some(&Self::GLOW_ITEM_FRAME),
+            61 => Some(&Self::GLOW_SQUID),
+            62 => Some(&Self::GOAT),
+            63 => Some(&Self::GUARDIAN),
+            58 => Some(&Self::HAPPY_GHAST),
+            64 => Some(&Self::HOGLIN),
+            65 => Some(&Self::HOPPER_MINECART),
+            66 => Some(&Self::HORSE),
+            67 => Some(&Self::HUSK),
+            68 => Some(&Self::ILLUSIONER),
+            69 => Some(&Self::INTERACTION),
+            70 => Some(&Self::IRON_GOLEM),
+            71 => Some(&Self::ITEM),
+            72 => Some(&Self::ITEM_DISPLAY),
+            73 => Some(&Self::ITEM_FRAME),
+            74 => Some(&Self::JUNGLE_BOAT),
+            75 => Some(&Self::JUNGLE_CHEST_BOAT),
+            76 => Some(&Self::LEASH_KNOT),
+            77 => Some(&Self::LIGHTNING_BOLT),
+            106 => Some(&Self::LINGERING_POTION),
+            78 => Some(&Self::LLAMA),
+            79 => Some(&Self::LLAMA_SPIT),
+            80 => Some(&Self::MAGMA_CUBE),
+            81 => Some(&Self::MANGROVE_BOAT),
+            82 => Some(&Self::MANGROVE_CHEST_BOAT),
+            83 => Some(&Self::MANNEQUIN),
+            84 => Some(&Self::MARKER),
+            85 => Some(&Self::MINECART),
+            86 => Some(&Self::MOOSHROOM),
+            87 => Some(&Self::MULE),
+            88 => Some(&Self::NAUTILUS),
+            89 => Some(&Self::OAK_BOAT),
+            90 => Some(&Self::OAK_CHEST_BOAT),
+            91 => Some(&Self::OCELOT),
+            92 => Some(&Self::OMINOUS_ITEM_SPAWNER),
+            93 => Some(&Self::PAINTING),
+            94 => Some(&Self::PALE_OAK_BOAT),
+            95 => Some(&Self::PALE_OAK_CHEST_BOAT),
+            96 => Some(&Self::PANDA),
+            97 => Some(&Self::PARCHED),
+            98 => Some(&Self::PARROT),
+            99 => Some(&Self::PHANTOM),
+            100 => Some(&Self::PIG),
+            101 => Some(&Self::PIGLIN),
+            102 => Some(&Self::PIGLIN_BRUTE),
+            103 => Some(&Self::PILLAGER),
+            156 => Some(&Self::PLAYER),
+            104 => Some(&Self::POLAR_BEAR),
+            107 => Some(&Self::PUFFERFISH),
+            108 => Some(&Self::RABBIT),
+            109 => Some(&Self::RAVAGER),
+            110 => Some(&Self::SALMON),
+            111 => Some(&Self::SHEEP),
+            112 => Some(&Self::SHULKER),
+            113 => Some(&Self::SHULKER_BULLET),
+            114 => Some(&Self::SILVERFISH),
+            115 => Some(&Self::SKELETON),
+            116 => Some(&Self::SKELETON_HORSE),
+            117 => Some(&Self::SLIME),
+            118 => Some(&Self::SMALL_FIREBALL),
+            119 => Some(&Self::SNIFFER),
+            121 => Some(&Self::SNOW_GOLEM),
+            120 => Some(&Self::SNOWBALL),
+            122 => Some(&Self::SPAWNER_MINECART),
+            123 => Some(&Self::SPECTRAL_ARROW),
+            124 => Some(&Self::SPIDER),
+            105 => Some(&Self::SPLASH_POTION),
+            125 => Some(&Self::SPRUCE_BOAT),
+            126 => Some(&Self::SPRUCE_CHEST_BOAT),
+            127 => Some(&Self::SQUID),
+            128 => Some(&Self::STRAY),
+            129 => Some(&Self::STRIDER),
+            130 => Some(&Self::SULFUR_CUBE),
+            131 => Some(&Self::TADPOLE),
+            132 => Some(&Self::TEXT_DISPLAY),
+            133 => Some(&Self::TNT),
+            134 => Some(&Self::TNT_MINECART),
+            135 => Some(&Self::TRADER_LLAMA),
+            136 => Some(&Self::TRIDENT),
+            137 => Some(&Self::TROPICAL_FISH),
+            138 => Some(&Self::TURTLE),
+            139 => Some(&Self::VEX),
+            140 => Some(&Self::VILLAGER),
+            141 => Some(&Self::VINDICATOR),
+            142 => Some(&Self::WANDERING_TRADER),
+            143 => Some(&Self::WARDEN),
+            144 => Some(&Self::WIND_CHARGE),
+            145 => Some(&Self::WITCH),
+            146 => Some(&Self::WITHER),
+            147 => Some(&Self::WITHER_SKELETON),
+            148 => Some(&Self::WITHER_SKULL),
+            149 => Some(&Self::WOLF),
+            150 => Some(&Self::ZOGLIN),
+            151 => Some(&Self::ZOMBIE),
+            152 => Some(&Self::ZOMBIE_HORSE),
+            153 => Some(&Self::ZOMBIE_NAUTILUS),
+            154 => Some(&Self::ZOMBIE_VILLAGER),
+            155 => Some(&Self::ZOMBIFIED_PIGLIN),
             _ => None,
         }
     }
@@ -3136,6 +3276,7 @@ impl EntityType {
             "breeze" => Some(&Self::BREEZE),
             "breeze_wind_charge" => Some(&Self::BREEZE_WIND_CHARGE),
             "camel" => Some(&Self::CAMEL),
+            "camel_husk" => Some(&Self::CAMEL_HUSK),
             "cat" => Some(&Self::CAT),
             "cave_spider" => Some(&Self::CAVE_SPIDER),
             "cherry_boat" => Some(&Self::CHERRY_BOAT),
@@ -3144,6 +3285,7 @@ impl EntityType {
             "chicken" => Some(&Self::CHICKEN),
             "cod" => Some(&Self::COD),
             "command_block_minecart" => Some(&Self::COMMAND_BLOCK_MINECART),
+            "copper_golem" => Some(&Self::COPPER_GOLEM),
             "cow" => Some(&Self::COW),
             "creaking" => Some(&Self::CREAKING),
             "creeper" => Some(&Self::CREEPER),
@@ -3199,10 +3341,12 @@ impl EntityType {
             "magma_cube" => Some(&Self::MAGMA_CUBE),
             "mangrove_boat" => Some(&Self::MANGROVE_BOAT),
             "mangrove_chest_boat" => Some(&Self::MANGROVE_CHEST_BOAT),
+            "mannequin" => Some(&Self::MANNEQUIN),
             "marker" => Some(&Self::MARKER),
             "minecart" => Some(&Self::MINECART),
             "mooshroom" => Some(&Self::MOOSHROOM),
             "mule" => Some(&Self::MULE),
+            "nautilus" => Some(&Self::NAUTILUS),
             "oak_boat" => Some(&Self::OAK_BOAT),
             "oak_chest_boat" => Some(&Self::OAK_CHEST_BOAT),
             "ocelot" => Some(&Self::OCELOT),
@@ -3211,6 +3355,7 @@ impl EntityType {
             "pale_oak_boat" => Some(&Self::PALE_OAK_BOAT),
             "pale_oak_chest_boat" => Some(&Self::PALE_OAK_CHEST_BOAT),
             "panda" => Some(&Self::PANDA),
+            "parched" => Some(&Self::PARCHED),
             "parrot" => Some(&Self::PARROT),
             "phantom" => Some(&Self::PHANTOM),
             "pig" => Some(&Self::PIG),
@@ -3243,6 +3388,7 @@ impl EntityType {
             "squid" => Some(&Self::SQUID),
             "stray" => Some(&Self::STRAY),
             "strider" => Some(&Self::STRIDER),
+            "sulfur_cube" => Some(&Self::SULFUR_CUBE),
             "tadpole" => Some(&Self::TADPOLE),
             "text_display" => Some(&Self::TEXT_DISPLAY),
             "tnt" => Some(&Self::TNT),
@@ -3265,6 +3411,7 @@ impl EntityType {
             "zoglin" => Some(&Self::ZOGLIN),
             "zombie" => Some(&Self::ZOMBIE),
             "zombie_horse" => Some(&Self::ZOMBIE_HORSE),
+            "zombie_nautilus" => Some(&Self::ZOMBIE_NAUTILUS),
             "zombie_villager" => Some(&Self::ZOMBIE_VILLAGER),
             "zombified_piglin" => Some(&Self::ZOMBIFIED_PIGLIN),
             _ => None,

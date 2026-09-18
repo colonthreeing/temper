@@ -31,6 +31,7 @@ pub enum NetworkPalette {
 #[derive(NetEncode)]
 pub struct NetworkSection<'section> {
     block_count: u16,
+    fluid_count: u16,
     block_states: PalettedContainer<'section>,
     biomes: PalettedContainer<'section>,
 }
@@ -88,11 +89,11 @@ impl<'section> From<&'section PalettedSection> for PalettedContainer<'section> {
 }
 
 impl<'section> From<&'section DirectSection> for PalettedContainer<'section> {
-    fn from(_section: &'section DirectSection) -> Self {
+    fn from(section: &'section DirectSection) -> Self {
         PalettedContainer {
             bits_per_entry: 16,
             palette: NetworkPalette::Direct {},
-            data_array: NetworkArray::new_owned(vec![]), // TODO: fix this to use the data from the section; bytemuck::cast_slice(&section.0)
+            data_array: NetworkArray::new_borrowed(bytemuck::cast_slice(&section.0)),
         }
     }
 }
@@ -130,6 +131,7 @@ impl<'section> From<&'section ChunkSection> for NetworkSection<'section> {
     fn from(value: &'section ChunkSection) -> Self {
         Self {
             block_count: value.block_count(),
+            fluid_count: value.fluid_count(),
             block_states: PalettedContainer::from(value),
             biomes: PalettedContainer::from(&value.biome),
         }

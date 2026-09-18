@@ -8,6 +8,7 @@ use std::sync::atomic::Ordering;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_properties::PlayerProperties;
 use temper_encryption::read::EncryptedReader;
@@ -30,15 +31,16 @@ use tracing::{error, trace};
 /// - `compression`: Indicates whether network compression should be enabled for this connection.
 pub(crate) struct LoginResult {
     pub player_identity: Option<Identity>,
+    pub game_id: Option<GameID>,
     pub player_properties: Option<PlayerProperties>,
     pub compression: bool,
     pub client_information_component: Option<ClientInformationComponent>,
     pub permissions: Option<PlayerPermission>,
 }
 
-/// Protocol version supported by this server implementation (Minecraft 1.21.8).
+/// Protocol version supported by this server implementation (Minecraft 26.2).
 /// Used for rejecting clients with mismatched versions during handshake.
-pub const PROTOCOL_VERSION_1_21_8: i32 = 772;
+pub const PROTOCOL_VERSION_26_2: i32 = 776;
 
 /// Handles the initial handshake sequence from a connecting client.
 ///
@@ -97,10 +99,10 @@ pub async fn handle_handshake(
         .expect("Could not spawn task")?;
 
     // If protocol version is mismatched, handle gracefully or disconnect client.
-    if hs_packet.protocol_version.0 != PROTOCOL_VERSION_1_21_8 {
+    if hs_packet.protocol_version.0 != PROTOCOL_VERSION_26_2 {
         trace!(
             "Protocol version mismatch: {} != {}",
-            hs_packet.protocol_version.0, PROTOCOL_VERSION_1_21_8
+            hs_packet.protocol_version.0, PROTOCOL_VERSION_26_2
         );
         return handle_version_mismatch(hs_packet, conn_read, conn_write, state).await;
     }
@@ -146,7 +148,7 @@ async fn handle_version_mismatch(
         1 => {
             trace!(
                 "Protocol version mismatch during status request: {} != {}",
-                hs_packet.protocol_version.0, PROTOCOL_VERSION_1_21_8
+                hs_packet.protocol_version.0, PROTOCOL_VERSION_26_2
             );
             status(conn_read, conn_write, state).await
         }
@@ -162,18 +164,18 @@ async fn handle_version_mismatch(
 
             trace!(
                 "Sent login disconnect due to protocol version mismatch: {} != {}",
-                hs_packet.protocol_version.0, PROTOCOL_VERSION_1_21_8
+                hs_packet.protocol_version.0, PROTOCOL_VERSION_26_2
             );
 
             Err(NetError::MismatchedProtocolVersion(
                 hs_packet.protocol_version.0,
-                PROTOCOL_VERSION_1_21_8,
+                PROTOCOL_VERSION_26_2,
             ))
         }
         // Unknown or unsupported state: just return a generic mismatch error.
         _ => Err(NetError::MismatchedProtocolVersion(
             hs_packet.protocol_version.0,
-            PROTOCOL_VERSION_1_21_8,
+            PROTOCOL_VERSION_26_2,
         )),
     }
 }
@@ -207,7 +209,7 @@ fn get_mismatched_version_message(client_version: i32) -> TextComponent {
         .extra(ComponentBuilder::text(" to connect to this server.").color(NamedColor::Gray))
         .extra(ComponentBuilder::text("\n\n"))
         .extra(ComponentBuilder::text("Server Version: ").color(NamedColor::DarkGray))
-        .extra(ComponentBuilder::text(PROTOCOL_VERSION_1_21_8.to_string()).color(NamedColor::Aqua))
+        .extra(ComponentBuilder::text(PROTOCOL_VERSION_26_2.to_string()).color(NamedColor::Aqua))
         .extra(ComponentBuilder::text(" | Your Version: ").color(NamedColor::DarkGray))
         .extra(ComponentBuilder::text(client_version.to_string()).color(NamedColor::Red))
         .build()

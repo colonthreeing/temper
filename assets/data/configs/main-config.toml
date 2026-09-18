@@ -37,6 +37,9 @@ default_gamemode = "creative"
 # https://github.com/pebblehost/hunter/blob/master/ips.txt and updated every 3 hours.
 block_scanner_ips = true
 
+# If enabled, players will have full permissions upon joining. This does not apply to players who have joined before.
+op_by_default = true
+
 # Database configuration
 [database]
 # Path to the world database
@@ -74,3 +77,7 @@ serve_page = true
 port = 9000
 # Randomly generated secret for accessing the dashboard.
 secret = "This will be replaced with a random string on first run, do not change this text. If you see this outside of the default config, something is wrong."
+
+[world_gen]
+seed = "temper rox"
+generator = "normal"

@@ -11,7 +11,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::pos::SectionBlockPos;
-use temper_macros::block;
+use temper_macros::{block, match_block};
 use type_hash::TypeHash;
 
 mod biome;
@@ -36,6 +36,11 @@ impl ChunkSectionType {
     pub fn get_block(&self, pos: SectionBlockPos) -> BlockStateId {
         let pos = pos.pack() as usize;
 
+        self.get_block_index(pos)
+    }
+
+    #[inline]
+    pub(crate) fn get_block_index(&self, pos: usize) -> BlockStateId {
         match self {
             Self::Uniform(data) => data.get_block(),
             Self::Paletted(data) => data.get_block(pos),
@@ -74,7 +79,7 @@ impl ChunkSectionType {
         }
     }
 
-    #[inline]
+    #[expect(unused)]
     pub fn fill(&mut self, id: BlockStateId) {
         match self {
             Self::Uniform(data) => data.fill(id),
@@ -95,10 +100,26 @@ impl ChunkSectionType {
             Self::Direct(data) => data.block_count(),
         }
     }
+
+    pub fn fluid_count(&self) -> u16 {
+        match self {
+            Self::Uniform(data) => {
+                let state = data.get_block();
+                if match_block!("water", state) || match_block!("lava", state) {
+                    0
+                } else {
+                    4096
+                }
+            }
+            Self::Paletted(data) => data.fluid_count(),
+            Self::Direct(data) => data.fluid_count(),
+        }
+    }
 }
 
 #[derive(Clone, DeepSizeOf, Serialize, Deserialize, TypeHash)]
 pub struct ChunkSection {
+    pub(crate) y: i8,
     pub(crate) inner: ChunkSectionType,
     pub(crate) light: SectionLightData,
     pub(crate) biome: BiomeData,
@@ -106,8 +127,9 @@ pub struct ChunkSection {
 }
 
 impl ChunkSection {
-    pub fn new_uniform(id: BlockStateId) -> Self {
+    pub fn new_uniform(id: BlockStateId, y: i8) -> Self {
         Self {
+            y,
             inner: ChunkSectionType::Uniform(UniformSection::new_with(id)),
             light: SectionLightData::default(),
             biome: BiomeData::Uniform(BiomeType(5)),
@@ -115,9 +137,11 @@ impl ChunkSection {
         }
     }
 
-    pub fn with_space_for(unique_blocks: u16) -> Self {
+    #[expect(unused)]
+    pub(crate) fn with_space_for(unique_blocks: u16, y: i8) -> Self {
         if unique_blocks <= 1 {
             Self {
+                y,
                 inner: ChunkSectionType::Uniform(UniformSection::air()),
                 light: SectionLightData::default(),
                 biome: BiomeData::Uniform(BiomeType(5)),
@@ -125,6 +149,7 @@ impl ChunkSection {
             }
         } else if unique_blocks < 256 {
             Self {
+                y,
                 inner: ChunkSectionType::Paletted(PalettedSection::new_with_block_count(
                     unique_blocks as _,
                 )),
@@ -134,6 +159,7 @@ impl ChunkSection {
             }
         } else {
             Self {
+                y,
                 inner: ChunkSectionType::Direct(DirectSection::default()),
                 light: SectionLightData::default(),
                 biome: BiomeData::Uniform(BiomeType(5)),
@@ -143,30 +169,41 @@ impl ChunkSection {
     }
 
     #[inline]
-    pub fn get_block(&self, pos: SectionBlockPos) -> BlockStateId {
+    pub(crate) fn get_block(&self, pos: SectionBlockPos) -> BlockStateId {
         self.inner.get_block(pos)
     }
 
     #[inline]
-    pub fn set_block(&mut self, pos: SectionBlockPos, id: BlockStateId) {
+    pub(crate) fn get_block_index(&self, pos: usize) -> BlockStateId {
+        debug_assert!(pos < CHUNK_SECTION_LENGTH);
+        self.inner.get_block_index(pos)
+    }
+
+    #[inline]
+    pub(crate) fn set_block(&mut self, pos: SectionBlockPos, id: BlockStateId) {
         self.dirty.store(true, std::sync::atomic::Ordering::Relaxed);
         self.inner.set_block(pos, id);
     }
 
-    #[inline]
-    pub fn fill(&mut self, id: BlockStateId) {
+    #[expect(unused)]
+    pub(crate) fn fill(&mut self, id: BlockStateId) {
         self.dirty.store(true, std::sync::atomic::Ordering::Relaxed);
         self.inner.fill(id);
     }
 
-    #[inline]
-    pub fn clear(&mut self) {
+    #[expect(unused)]
+    pub(crate) fn clear(&mut self) {
         self.fill(block!("air"))
     }
 
     #[inline]
-    pub fn block_count(&self) -> u16 {
+    pub(crate) fn block_count(&self) -> u16 {
         self.inner.block_count()
+    }
+
+    #[inline]
+    pub(crate) fn fluid_count(&self) -> u16 {
+        self.inner.fluid_count()
     }
 }
 
@@ -227,6 +264,7 @@ impl TryFrom<&Section> for ChunkSection {
                 }
             } else {
                 return Ok(Self {
+                    y: value.y,
                     light: light_data,
                     biome: BiomeData::Uniform(BiomeType(5)),
                     dirty: Arc::new(AtomicBool::new(false)),
@@ -249,6 +287,7 @@ impl TryFrom<&Section> for ChunkSection {
             }
 
             Ok(Self {
+                y: value.y,
                 light: light_data,
                 biome: BiomeData::Uniform(BiomeType(5)),
                 dirty: Arc::new(AtomicBool::new(false)),
@@ -256,6 +295,7 @@ impl TryFrom<&Section> for ChunkSection {
             })
         } else {
             Ok(Self {
+                y: value.y,
                 light: light_data,
                 biome: BiomeData::Uniform(BiomeType(5)),
                 dirty: Arc::new(AtomicBool::new(false)),

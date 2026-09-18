@@ -26,7 +26,10 @@ fn deserialize_pattern<'de, D>(deserializer: D) -> Result<Option<Vec<Vec<String>
 where
     D: Deserializer<'de>,
 {
-    let raw = StringOrVec::deserialize(deserializer)?;
+    let raw = serde_json::Value::deserialize(deserializer)?;
+    let Ok(raw) = StringOrVec::deserialize(raw) else {
+        return Ok(None);
+    };
 
     Ok(Some(match raw {
         StringOrVec::String(s) => vec![vec![s]],
@@ -51,12 +54,10 @@ fn deserialize_key<'de, D: Deserializer<'de>>(
 
 fn deserialize_ingredient<'de, D: Deserializer<'de>>(
     deserialize: D,
-) -> Result<Option<Vec<String>>, D::Error> {
+) -> Result<Option<Vec<Vec<String>>>, D::Error> {
     let raw = Vec::<StringOrVec>::deserialize(deserialize)?;
 
-    Ok(Some(
-        raw.into_iter().flat_map(StringOrVec::flatten).collect(),
-    ))
+    Ok(Some(raw.into_iter().map(StringOrVec::flatten).collect()))
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -69,7 +70,7 @@ pub struct Recipe {
     #[serde(default)]
     pub category: Option<String>,
     #[serde(default, deserialize_with = "deserialize_ingredient")]
-    pub ingredients: Option<Vec<String>>,
+    pub ingredients: Option<Vec<Vec<String>>>,
     #[serde(default, deserialize_with = "deserialize_key")]
     pub key: Option<BTreeMap<String, Vec<String>>>,
     #[serde(default, deserialize_with = "deserialize_pattern")]
@@ -91,7 +92,7 @@ pub struct RecipeResult {
 pub(crate) fn build() -> TokenStream {
     println!("cargo:rerun-if-changed=../../assets/extracted/recipes.json");
 
-    let recipes: Vec<Recipe> =
+    let recipes: BTreeMap<String, Recipe> =
         serde_json::from_str(&fs::read_to_string("../../assets/extracted/recipes.json").unwrap())
             .expect("Failed to parse recipes.json");
 
@@ -99,8 +100,8 @@ pub(crate) fn build() -> TokenStream {
     let mut constant_names = TokenStream::new();
     let mut type_from_name = TokenStream::new();
 
-    for (index, recipe) in recipes.iter().enumerate() {
-        let name = format!("recipe_{}", index);
+    for (name, recipe) in recipes.iter() {
+        let name = name.strip_prefix("minecraft:").unwrap_or(name);
         let const_ident = format_ident!("{}", name.to_shouty_snake_case());
 
         constant_names.extend(quote! {
@@ -154,6 +155,8 @@ pub(crate) fn build() -> TokenStream {
             "minecraft:crafting_special_tippedarrow" | "crafting_special_tippedarrow" => {
                 quote! { RecipeType::CraftingSpecialTippedArrow }
             }
+            "minecraft:crafting_dye" | "crafting_dye" => quote! { RecipeType::CraftingDye },
+            "minecraft:crafting_imbue" | "crafting_imbue" => quote! { RecipeType::CraftingImbue },
             "minecraft:stonecutting" | "stonecutting" => quote! { RecipeType::Stonecutting },
             "minecraft:smelting" | "smelting" => quote! { RecipeType::Smelting },
             "minecraft:campfire_cooking" | "campfire_cooking" => {
@@ -215,7 +218,12 @@ pub(crate) fn build() -> TokenStream {
         };
 
         let ingredients = match &recipe.ingredients {
-            Some(ingredients) => quote! { Some(&[#(#ingredients),*]) },
+            Some(ingredients) => {
+                let items = ingredients.iter().map(|ingredient| {
+                    quote! { &[#(#ingredient),*] }
+                });
+                quote! { Some(&[#(#items),*]) }
+            }
             None => quote! { None },
         };
 
@@ -269,7 +277,7 @@ pub(crate) fn build() -> TokenStream {
             pub experience: Option<f32>,
             pub cookingtime: Option<u32>,
             pub key: Option<&'static [(&'static str, &'static [&'static str])]>,
-            pub ingredients: Option<&'static [&'static str]>,
+            pub ingredients: Option<&'static [&'static [&'static str]]>,
             pub result: Option<RecipeResult>,
             pub pattern: Option<&'static [&'static [&'static str]]>
         }
@@ -297,6 +305,8 @@ pub(crate) fn build() -> TokenStream {
             CraftingSpecialRepairItem,
             CraftingSpecialShieldDecoration,
             CraftingSpecialTippedArrow,
+            CraftingDye,
+            CraftingImbue,
             Stonecutting,
             Smelting,
             CampfireCooking,

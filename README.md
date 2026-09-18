@@ -10,7 +10,7 @@
 
 ## About
 
-Temper is a Minecraft server implementation written in Rust, with the goals of being extremely fast and memory
+Temper is a Minecraft 26.2 server implementation written in Rust, with the goals of being extremely fast and memory
 efficient, while also being easy to use and set up. With a focus on community, extensibility, and performance, we hope
 to create a server that can be used by everyone from casual players to large server owners.
 
@@ -73,6 +73,11 @@ on our GitHub Actions.
 5. Follow the instructions in the `Usage` section
 
 ### Compile from source
+
+##### What you'll need
+- The Rust compiler, plus it's build system Cargo
+- A Java 21 (or higher) JDK installed and available in your 
+  PATH so assets can be extracted from the vanilla server
 
 ##### Clone and build the project.
 
@@ -150,3 +155,5 @@ a specific point in time.
 ## Stats
 
 ![Alt](https://repobeats.axiom.co/api/embed/f28c7e31c2d3b037ca37493bea8a65cbf1021275.svg "Repobeats analytics image")
+
+<small>Pssst. Want to rust-ify your Minecraft client as well? Check out <a href="https://github.com/PommeMC/Client">Pomme</a></small>

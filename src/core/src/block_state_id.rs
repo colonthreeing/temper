@@ -5,17 +5,12 @@ use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Display;
-use std::process::exit;
 use std::str::FromStr;
 use temper_codec::net_types::var_int::VarInt;
-use tracing::{error, warn};
+use tracing::warn;
 use type_hash::TypeHash;
 
-// The number of block entries in the mappings file
-// Go to the .etc/blockstates.json file, see what the last ID is, and add 1 to it.
-const BLOCK_ENTRIES: usize = 27914;
-
-const BLOCKSFILE: &str = include_str!("../../../assets/data/blockstates.json");
+const BLOCKSFILE: &str = temper_assets::generated::BLOCKSTATES;
 
 pub static ID2BLOCK: OnceCell<Vec<BlockData>> = OnceCell::new();
 pub static BLOCK2ID: OnceCell<HashMap<BlockData, i32, RandomState>> = OnceCell::new();
@@ -23,17 +18,24 @@ pub static BLOCK2ID: OnceCell<HashMap<BlockData, i32, RandomState>> = OnceCell::
 pub fn create_block_mappings() -> (Vec<BlockData>, HashMap<BlockData, i32, RandomState>) {
     let string_keys: HashMap<String, BlockData, RandomState> =
         serde_json::from_str(BLOCKSFILE).unwrap();
-    if string_keys.len() != BLOCK_ENTRIES {
-        error!("Block mappings file is not the correct length");
-        error!(
-            "Expected {} entries, found {}",
-            BLOCK_ENTRIES,
-            string_keys.len()
+
+    let block_entries = string_keys
+        .keys()
+        .map(|key| key.parse::<usize>().unwrap())
+        .max()
+        .map(|max_id| max_id + 1)
+        .unwrap_or_default();
+
+    if string_keys.len() != block_entries {
+        warn!(
+            "Block mappings file has {} entries, but the highest id needs {} slots",
+            string_keys.len(),
+            block_entries
         );
-        exit(1);
     }
-    let mut id2block = Vec::with_capacity(BLOCK_ENTRIES);
-    for _ in 0..BLOCK_ENTRIES {
+
+    let mut id2block = Vec::with_capacity(block_entries);
+    for _ in 0..block_entries {
         id2block.push(BlockData::default());
     }
     string_keys
@@ -162,8 +164,7 @@ impl Default for BlockStateId {
     }
 }
 
-const ITEM_TO_BLOCK_MAPPING_FILE: &str =
-    include_str!("../../../assets/data/item_to_block_mapping.json");
+const ITEM_TO_BLOCK_MAPPING_FILE: &str = temper_assets::generated::ITEM_TO_BLOCK_MAPPING;
 pub static ITEM_TO_BLOCK_MAPPING: OnceCell<HashMap<i32, BlockStateId>> = OnceCell::new();
 
 pub fn create_item_to_block_mapping() -> HashMap<i32, BlockStateId> {

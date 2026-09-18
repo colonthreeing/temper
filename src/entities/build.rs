@@ -1,4 +1,4 @@
-use heck::ToShoutySnakeCase;
+use heck::{ToShoutySnakeCase, ToSnakeCase};
 use proc_macro2::Ident;
 use quote::quote;
 use std::fs;
@@ -18,6 +18,7 @@ fn main() {
 
     let mut enum_variants = Vec::new();
     let mut id_match_arms = Vec::new();
+    let mut from_snake_match_arms = Vec::new();
 
     for item in ast.items {
         if let Item::Mod(module) = &item
@@ -35,6 +36,10 @@ fn main() {
                     id_match_arms.push(quote! {
                     Self::#ident => temper_data::generated::entities::EntityType::#caps,
                     });
+                    let snake_str = ident.to_string().to_snake_case();
+                    from_snake_match_arms.push(quote! {
+                        #snake_str => Some(Self::#ident),
+                    });
                 }
             }
         }
@@ -51,6 +56,13 @@ fn main() {
             pub fn to_entity_type(&self) -> temper_data::generated::entities::EntityType {
                 match self {
                     #( #id_match_arms )*
+                }
+            }
+
+            pub fn from_snake_case(name: &str) -> Option<Self> {
+                match name {
+                    #( #from_snake_match_arms )*
+                    _ => None,
                 }
             }
         }

@@ -13,11 +13,12 @@ use temper_macros::lookup_packet;
 use temper_protocol::ConnState::*;
 use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
 use temper_protocol::outgoing::login_success::{LoginSuccessPacket, LoginSuccessProperties};
-use temper_protocol::outgoing::set_default_spawn_position::DEFAULT_SPAWN_POSITION;
-use temper_protocol::outgoing::{commands::CommandsPacket, registry_data::REGISTRY_PACKETS};
+use temper_protocol::outgoing::registry_data::REGISTRY_PACKETS;
+use temper_protocol::outgoing::update_tags::UPDATE_TAGS_PACKET;
 use temper_state::GlobalState;
 
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::gamemode::GameMode;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_properties::{PlayerProperties, PlayerProperty};
@@ -217,6 +218,7 @@ async fn send_login_success(
                 })
                 .collect(),
         ),
+        session_id: 0,
     };
     conn_write.send_packet(login_success)?;
 
@@ -224,7 +226,6 @@ async fn send_login_success(
     let player_identity = Identity {
         uuid: Uuid::from_u128(login_start.uuid),
         name: Some(login_start.username.clone()),
-        entity_id: login_start.uuid as i32,
     };
 
     // Wait for Login Acknowledged
@@ -325,6 +326,8 @@ async fn finish_configuration(
         conn_write.send_packet_ref(packet)?;
     }
 
+    conn_write.send_packet_ref(&*UPDATE_TAGS_PACKET)?;
+
     // Send brand
     conn_write.send_packet(ClientBoundPluginMessagePacket::brand())?;
 
@@ -356,7 +359,7 @@ async fn finish_configuration(
 /// Sends initial play state packets (login_play, abilities, op level).
 fn send_initial_play_packets(
     conn_write: &StreamWriter,
-    player_identity: &Identity,
+    player_id: &GameID,
     offline_data: &OfflinePlayerData,
     state: GlobalState,
 ) -> Result<(), NetError> {
@@ -364,7 +367,7 @@ fn send_initial_play_packets(
     let game_mode = offline_data.gamemode;
 
     conn_write.send_packet(LoginPlayPacket::new(
-        player_identity.entity_id,
+        player_id.get().0,
         game_mode as u8,
         &state.config,
     ))?;
@@ -376,7 +379,7 @@ fn send_initial_play_packets(
 
     // Send OP level (TODO: use actual player OP level)
     conn_write.send_packet(EntityStatus {
-        entity_id: player_identity.entity_id,
+        entity_id: player_id.get().0,
         status: 28, // OP level 4
     })?;
 
@@ -431,16 +434,6 @@ fn send_player_info(
         player_properties,
     ))?;
     conn_write.send_packet(GameEventPacket::new(13, 0.0))?;
-    Ok(())
-}
-
-/// Sends the command graph to the client.
-fn send_command_graph(conn_write: &StreamWriter) -> Result<(), NetError> {
-    conn_write.send_packet(CommandsPacket::from_global_graph())?;
-    trace!(
-        "sending command graph {:#?}",
-        temper_commands::infrastructure::get_graph()
-    );
     Ok(())
 }
 
@@ -513,6 +506,16 @@ pub(super) async fn login(
     exchange_known_packs(conn_read, conn_write, compressed, state.clone()).await?;
     finish_configuration(conn_read, conn_write, compressed, state.clone()).await?;
 
+    let spawn_pos = {
+        while state.spawn_positions.is_empty() {
+            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+        }
+        state
+            .spawn_positions
+            .pop()
+            .expect("Spawn position should be available after waiting")
+    };
+
     let offline_data = state
         .world
         .load_player_data::<OfflinePlayerData>(player_identity.uuid)
@@ -528,19 +531,30 @@ pub(super) async fn login(
             None
         })
         .unwrap_or(OfflinePlayerData {
-            position: DEFAULT_SPAWN_POSITION.into(),
+            position: spawn_pos,
             gamemode: GameMode::from_string(&state.config.default_gamemode).unwrap_or_default(),
             abilities: temper_components::player::abilities::PlayerAbilities::for_game_mode(
                 GameMode::from_string(&state.config.default_gamemode).unwrap_or_default(),
             ),
-
+            permissions: if state.config.op_by_default {
+                let mut perms = temper_permissions::player::PlayerPermission::new();
+                perms.set_permission(
+                    temper_permissions::Permissions::ALL,
+                    temper_permissions::Access::Allow,
+                );
+                perms
+            } else {
+                temper_permissions::player::PlayerPermission::new()
+            },
             ..Default::default()
         });
 
     // Phase 3: Play State Setup
 
+    let player_game_id = GameID::new();
+
     // TODO: at some point this should be moved to the ECS
-    send_initial_play_packets(conn_write, &player_identity, &offline_data, state.clone())?;
+    send_initial_play_packets(conn_write, &player_game_id, &offline_data, state.clone())?;
     sync_player_position(
         conn_read,
         conn_write,
@@ -551,13 +565,28 @@ pub(super) async fn login(
     .await?;
     send_player_info(conn_write, &player_identity, &player_properties)?;
     send_inventory_contents(conn_write, &offline_data)?;
-    send_command_graph(conn_write)?;
+
+    state
+        .world
+        .save_player_data(player_identity.uuid, &offline_data)
+        .map_err(|err| {
+            error!(
+                "Error saving player data for {}: {:?}",
+                player_identity
+                    .name
+                    .clone()
+                    .unwrap_or("UnknownPlayerName".to_string()),
+                err
+            );
+            NetError::World(err)
+        })?;
 
     // Login complete
     Ok((
         false,
         LoginResult {
             player_identity: Some(player_identity),
+            game_id: Some(player_game_id),
             compression: compressed,
             client_information_component: Some(client_info.into()),
             player_properties: Some(player_properties),

@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
 use std::time::{Duration, Instant};
 
-use interactions::door_interaction::break_block_with_door_half;
+use temper_blocks::BlockDispatch;
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::abilities::PlayerAbilities;
@@ -10,6 +10,7 @@ use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_data::blocks::types::Block;
+use temper_macros::block;
 use temper_messages::player_digging::*;
 use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
@@ -291,18 +292,31 @@ fn break_block(
     world_change: &mut MessageWriter<WorldChange>,
 ) {
     let pos: BlockPos = position.clone().into();
-    let mut chunk = state
-        .0
-        .world
-        .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
-        .expect("Failed to load or generate chunk");
 
-    debug!("Sending BlockBrokenEvent for block at {:?}", pos.pos);
+    let Ok(id) = state.0.world.get_block(pos, Dimension::Overworld) else {
+        error!("Failed to get block at {}", pos);
+        return;
+    };
 
-    let broken_positions = break_block_with_door_half(&mut chunk, pos, block_break_writer);
+    let mut broken_positions = id.try_break(&state.0.world, pos).blocks;
+    broken_positions.push(pos);
+
     world_change.write(WorldChange {
         chunk: Some(pos.chunk()),
     });
+
+    for pos in &broken_positions {
+        block_break_writer.write(temper_messages::BlockBrokenEvent { position: *pos });
+
+        if let Err(world_error) = state
+            .0
+            .world
+            .set_block(*pos, Dimension::Overworld, block!("air"))
+        {
+            error!("Failed to break block at {}: {}", pos, world_error)
+        }
+        remove_block_entity(state, *pos);
+    }
 
     // Broadcast the block break to all players
     let block_update_packet = BlockUpdate {
@@ -335,5 +349,25 @@ fn break_block(
                 eid, e
             );
         }
+    }
+}
+
+/// Removes block entity data when its block is broken, so a later block
+/// entity at the same position doesn't inherit stale data.
+fn remove_block_entity(state: &GlobalStateResource, block_pos: BlockPos) {
+    let Ok(chunk) = state
+        .0
+        .world
+        .get_chunk(block_pos.chunk(), Dimension::Overworld)
+    else {
+        return;
+    };
+
+    if chunk
+        .block_entities
+        .remove(&block_pos.chunk_block_pos())
+        .is_some()
+    {
+        chunk.mark_dirty();
     }
 }

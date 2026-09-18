@@ -1,4 +1,5 @@
-use temper_codec::net_types::net_array::NetworkArray;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_config::ServerConfig;
 use temper_macros::{NetEncode, packet};
@@ -8,8 +9,7 @@ use temper_macros::{NetEncode, packet};
 pub struct LoginPlayPacket<'a> {
     pub entity_id: i32,
     pub is_hardcore: bool,
-    pub dimension_length: VarInt,
-    pub dimension_names: NetworkArray<'a, &'a str>,
+    pub dimension_names: LengthPrefixedVec<&'a str>,
     pub max_players: VarInt,
     pub view_distance: VarInt,
     pub simulation_distance: VarInt,
@@ -25,9 +25,10 @@ pub struct LoginPlayPacket<'a> {
     pub is_flat: bool,
     pub has_death_location: bool,
     pub death_dimension_name: Option<&'a str>,
-    pub death_location: Option<u8>, // change this to actual Position. this won't work!!
+    pub death_location: Option<NetworkPosition>, // change this to actual Position. this won't work!!
     pub portal_cooldown: VarInt,
     pub sea_level: VarInt,
+    pub online_mode: bool,
     pub enforces_secure_chat: bool,
 }
 
@@ -36,8 +37,7 @@ impl LoginPlayPacket<'_> {
         Self {
             entity_id: conn_id,
             is_hardcore: false,
-            dimension_length: VarInt::from(1),
-            dimension_names: NetworkArray::new_borrowed(&["minecraft:overworld"]),
+            dimension_names: LengthPrefixedVec::new(["minecraft:overworld"].into()),
             max_players: VarInt::from(config.max_players as i32),
             view_distance: VarInt::from(config.chunk_render_distance as i32),
             simulation_distance: VarInt::from(config.chunk_render_distance as i32),
@@ -56,6 +56,7 @@ impl LoginPlayPacket<'_> {
             death_location: None,
             portal_cooldown: VarInt::from(0),
             sea_level: VarInt::from(63),
+            online_mode: config.online_mode,
             enforces_secure_chat: false,
         }
     }

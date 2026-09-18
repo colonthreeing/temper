@@ -58,6 +58,7 @@ pub fn shutdown_handler(state: GlobalState) {
     state
         .shut_down
         .store(true, std::sync::atomic::Ordering::Relaxed);
+
     state
         .world
         .sync()

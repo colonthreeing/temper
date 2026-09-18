@@ -1,6 +1,6 @@
 [package]
 name = "packets"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2024"
 
 [dependencies]
@@ -13,17 +13,23 @@ temper-messages = { workspace = true }
 temper-text = { workspace = true }
 temper-state = { workspace = true }
 temper-inventories = { workspace = true }
-temper-commands = { workspace = true }
 temper-net-runtime = { workspace = true }
 temper-codec = { workspace = true }
+temper-command-infra = { workspace = true }
+temper-permissions = { workspace = true }
 temper-config = { workspace = true }
+temper-blocks = { workspace = true }
 once_cell = { workspace = true }
-serde_json = { workspace = true }
 temper-macros = { workspace = true }
-block-placing = { path = "../../../world/block-placing" }
+temper-entities = { workspace = true }
 bevy_math = { workspace = true }
 temper-world = { workspace = true }
 interactions = { workspace = true }
+temper-data = { workspace = true }
+temper-world-format = { workspace = true }
+temper-blocks-generated = { workspace = true }
+temper-block-properties = { workspace = true }
+temper-nbt = { workspace = true }
 
 [lints]
 workspace = true

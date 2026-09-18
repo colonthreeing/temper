@@ -28,7 +28,7 @@ fn bench_item_lookup(c: &mut Criterion) {
     group.finish();
 }
 
-/// Benchmarks the `BLOCKSTATE_ID_TO_NAME` map (from blockstates.json)
+/// Benchmarks the `BLOCKSTATE_ID_TO_NAME` map.
 fn bench_blockstate_lookup(c: &mut Criterion) {
     setup();
     let mut group = c.benchmark_group("registry_blockstate_lookup");

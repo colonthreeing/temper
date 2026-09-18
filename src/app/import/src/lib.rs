@@ -9,7 +9,8 @@ use tracing::{error, info};
 pub fn handle_import(import_args: ImportArgs, config: ServerConfig) {
     info!("Importing world...");
 
-    let mut world = World::new(config.database.db_path.clone(), 0, &config);
+    let mut world =
+        World::new(config.database.db_path.clone(), &config).expect("Failed to create world");
 
     let root_path = get_root_path();
     let mut import_path = root_path.join(&import_args.import_path);

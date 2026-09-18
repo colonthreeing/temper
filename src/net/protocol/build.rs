@@ -166,7 +166,7 @@ fn main() {
     println!("cargo:rustc-env=TEMPER_VERSION={}", version);
     println!(
         "cargo:rustc-env=BUILD_TYPE={}",
-        if std::env::var("PROFILE").unwrap() == "debug" {
+        if env::var("PROFILE").unwrap() == "debug" {
             " DEBUG"
         } else {
             ""
@@ -185,26 +185,12 @@ fn main() {
             input_dir.display()
         );
     }
-    let packets_json_path = manifest_dir.join("../../../assets/data/packets.json");
-    if !packets_json_path.is_file() {
-        panic!(
-            "build.rs: missing packets.json at {}",
-            packets_json_path.display()
-        );
-    }
 
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed={}", input_dir.display());
-    println!("cargo:rerun-if-changed={}", packets_json_path.display());
 
     let packets: Packets = {
-        let json = fs::read_to_string(&packets_json_path).unwrap_or_else(|e| {
-            panic!(
-                "build.rs: failed reading {}: {e}",
-                packets_json_path.display()
-            )
-        });
-        serde_json::from_str(&json)
+        serde_json::from_str(temper_assets::generated::reports::PACKETS)
             .unwrap_or_else(|e| panic!("build.rs: failed parsing packets.json: {e}"))
     };
 
@@ -329,13 +315,14 @@ use bevy_ecs::world::World;
 pub fn handle_packet<R: std::io::Read>(
     packet_id: u8,
     entity: bevy_ecs::entity::Entity,
+    player_name: &str,
     cursor: &mut R,
     packet_sender: Arc<PacketSender>,
 ) -> Result<(), crate::errors::NetError> {{
     match packet_id {{
 {match_arms}
         _ => {{
-            tracing::debug!("No packet found for ID: 0x{{:02X}} (from {{}})", packet_id, entity);
+            tracing::debug!("No packet found for ID: 0x{{:02X}} (from {{}})", packet_id, player_name);
             Err(crate::errors::PacketError::InvalidPacket(packet_id).into())
         }}
     }}

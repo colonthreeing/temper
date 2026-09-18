@@ -1,10 +1,10 @@
 use quote::quote;
 use simd_json::prelude::*;
 
-const REGISTRY_FILE: &[u8] = include_bytes!("../../../../../assets/data/registries.json");
-
 pub(super) fn item(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let mut buf = REGISTRY_FILE.to_vec();
+    let mut buf = temper_assets::generated::reports::REGISTRIES
+        .as_bytes()
+        .to_vec();
 
     let parsed = simd_json::to_owned_value(&mut buf).unwrap();
 

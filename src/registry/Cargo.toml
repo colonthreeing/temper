@@ -1,6 +1,6 @@
 [package]
 name = "temper-registry"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2024"
 build = "build.rs"
 
@@ -14,6 +14,7 @@ criterion = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 phf_codegen = { workspace = true }
+temper-assets = { workspace = true }
 
 [lints]
 workspace = true

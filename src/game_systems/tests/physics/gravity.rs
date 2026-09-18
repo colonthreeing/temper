@@ -9,7 +9,7 @@ use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_entities::markers::{HasGravity, HasWaterDrag};
 use temper_macros::block;
-use temper_state::{create_test_state, GlobalStateResource};
+use temper_state::{GlobalStateResource, create_test_state};
 
 fn create_chunk_with_water(state: &GlobalStateResource, chunk_pos: ChunkPos) {
     let mut chunk = state

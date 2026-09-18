@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use syn::{parse_macro_input, LitStr};
 
 static JSON_CONTENT: LazyLock<serde_json::Value> = LazyLock::new(|| {
-    let json_str = include_str!("../../../../../assets/data/registries.json");
+    let json_str = temper_assets::generated::reports::REGISTRIES;
     serde_json::from_str(json_str).unwrap()
 });
 

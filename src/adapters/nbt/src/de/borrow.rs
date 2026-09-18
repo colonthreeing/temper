@@ -1,12 +1,12 @@
 use crate::de::converter::FromNbt;
-use crate::{NBTSerializable, NBTSerializeOptions};
+use crate::{NBTError, NBTSerializable, NBTSerializeOptions};
 use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_general_purpose::simd::arrays;
 
 #[repr(u8)]
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum NbtTag {
     End = 0,
     Byte = 1,
@@ -23,24 +23,30 @@ pub enum NbtTag {
     LongArray = 12,
 }
 
+impl NbtTag {
+    pub const fn from_byte(tag: u8) -> Option<Self> {
+        match tag {
+            0 => Some(NbtTag::End),
+            1 => Some(NbtTag::Byte),
+            2 => Some(NbtTag::Short),
+            3 => Some(NbtTag::Int),
+            4 => Some(NbtTag::Long),
+            5 => Some(NbtTag::Float),
+            6 => Some(NbtTag::Double),
+            7 => Some(NbtTag::ByteArray),
+            8 => Some(NbtTag::String),
+            9 => Some(NbtTag::List),
+            10 => Some(NbtTag::Compound),
+            11 => Some(NbtTag::IntArray),
+            12 => Some(NbtTag::LongArray),
+            _ => None,
+        }
+    }
+}
+
 impl From<u8> for NbtTag {
     fn from(tag: u8) -> Self {
-        match tag {
-            0 => NbtTag::End,
-            1 => NbtTag::Byte,
-            2 => NbtTag::Short,
-            3 => NbtTag::Int,
-            4 => NbtTag::Long,
-            5 => NbtTag::Float,
-            6 => NbtTag::Double,
-            7 => NbtTag::ByteArray,
-            8 => NbtTag::String,
-            9 => NbtTag::List,
-            10 => NbtTag::Compound,
-            11 => NbtTag::IntArray,
-            12 => NbtTag::LongArray,
-            _ => panic!("Invalid NbtTag: {tag}"),
-        }
+        Self::from_byte(tag).unwrap_or_else(|| panic!("Invalid NbtTag: {tag}"))
     }
 }
 
@@ -159,6 +165,22 @@ impl<'a> NbtTape<'a> {
         self.parse_tag();
     }
 
+    pub fn parse_network_root(&mut self) -> crate::Result<()> {
+        let tag = self.read_byte();
+        if tag != NbtTag::Compound as u8 {
+            return Err(NBTError::InvalidRootCompound(tag));
+        }
+
+        self.root = Some((
+            "",
+            NbtTapeElement::parse_from_nbt(
+                self,
+                NbtDeserializableOptions::TagType(NbtTag::Compound),
+            ),
+        ));
+        Ok(())
+    }
+
     fn parse_tag(&mut self) {
         let tag = NbtTag::from(self.read_byte());
         if tag != NbtTag::Compound {
@@ -213,7 +235,7 @@ impl<'a> NbtTape<'a> {
                 for _ in 0..*size {
                     let nbt_element = NbtTapeElement::parse_from_nbt(
                         &mut tape,
-                        NbtDeserializableOptions::TagType(el_type.clone()),
+                        NbtDeserializableOptions::TagType(*el_type),
                     );
 
                     let element =
@@ -706,7 +728,7 @@ impl NbtTapeElement<'_> {
                 size,
                 elements_pos,
             } => {
-                writer.write_all(&[el_type.clone() as u8])?;
+                writer.write_all(&[*el_type as u8])?;
                 (*size as i32).serialize(writer, &NBTSerializeOptions::None);
 
                 // Rewind tape to the start of the list.
@@ -716,7 +738,7 @@ impl NbtTapeElement<'_> {
                 for _ in 0..*size {
                     let element = NbtTapeElement::parse_from_nbt(
                         tape,
-                        NbtDeserializableOptions::TagType(el_type.clone()),
+                        NbtDeserializableOptions::TagType(*el_type),
                     );
                     element.serialize_as_network(tape, writer, &NBTSerializeOptions::None)?;
                 }

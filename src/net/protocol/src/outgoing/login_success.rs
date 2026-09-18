@@ -8,6 +8,7 @@ pub struct LoginSuccessPacket<'a> {
     pub uuid: u128,
     pub username: &'a str,
     pub properties: LengthPrefixedVec<LoginSuccessProperties<'a>>,
+    pub session_id: u128,
 }
 
 impl<'a> LoginSuccessPacket<'a> {
@@ -16,6 +17,7 @@ impl<'a> LoginSuccessPacket<'a> {
             uuid,
             username,
             properties: LengthPrefixedVec::new(vec![]),
+            session_id: 0,
         }
     }
 }

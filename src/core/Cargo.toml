@@ -1,7 +1,7 @@
 [package]
 name = "temper-core"
 description = "This crate defines all the primitives, traits and logics used in Temper codebase."
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 
 [dependencies]
@@ -10,6 +10,7 @@ bevy_ecs = { workspace = true }
 bevy_math = { workspace = true }
 temper-text = { workspace = true }
 temper-codec = { workspace = true }
+temper-assets = { workspace = true }
 crossbeam-queue = { workspace = true }
 bitcode = { workspace = true }
 bitcode_derive = { workspace = true }
@@ -23,6 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 once_cell = { workspace = true }
 type_hash = { workspace = true }
+wyhash = { workspace = true }
 
 [lints]
 workspace = true

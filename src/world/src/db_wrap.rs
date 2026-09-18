@@ -1,15 +1,44 @@
-use crate::{MutChunk, RefChunk, World};
+use crate::{ChunkStore, MutChunk, RefChunk, World};
 use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_world_format::errors::WorldError;
 use temper_world_format::Chunk;
-use tracing::trace;
 use world_db::chunks::{
     chunk_exists_internal, delete_chunk_internal, load_chunk_internal, save_chunk_internal,
-    sync_internal,
+    save_serialized_chunk_internal, sync_internal,
 };
 
-impl World {
+struct ChunkSaveSnapshot {
+    pos: ChunkPos,
+    dimension: Dimension,
+    chunk: Chunk,
+}
+
+impl ChunkStore {
+    pub fn generation_stage(
+        &self,
+        pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<Option<u8>, WorldError> {
+        match self.get_chunk(pos, dimension) {
+            Ok(chunk) => Ok(Some(chunk.stage)),
+            Err(WorldError::ChunkNotFound) => Ok(None),
+            Err(err) => Err(err),
+        }
+    }
+
+    pub fn ensure_chunk(&self, pos: ChunkPos, dimension: Dimension) -> Result<(), WorldError> {
+        if self.chunk_exists(pos, dimension)? {
+            return Ok(());
+        }
+
+        let chunk = Chunk::new_empty();
+        chunk.mark_dirty();
+        self.cache.insert((pos, dimension), chunk);
+
+        Ok(())
+    }
+
     /// Save a chunk to the storage backend
     ///
     /// This function will save a chunk to the storage backend and update the cache with the new
@@ -96,32 +125,170 @@ impl World {
 
     /// Sync the storage backend.
     ///
-    /// This function will save all chunks in the cache to the storage backend and then sync the
-    /// storage backend. This should be run after inserting or updating a large number of chunks
-    /// to ensure that the data is properly saved to disk.
-    pub fn sync(&self) -> Result<(), WorldError> {
+    /// This function will save fully generated dirty chunks in the cache to the storage backend and
+    /// then sync the storage backend. This should be run after inserting or updating a large number
+    /// of chunks to ensure that the data is properly saved to disk.
+    pub fn sync(&self, minimum_stage: u8) -> Result<(), WorldError> {
+        let mut snapshots = Vec::new();
+
         for pair in self.cache.iter() {
             let k = pair.key();
             let v = pair.value();
-            if v.is_dirty() {
-                trace!("Chunk at {:?} is dirty, saving.", k.0);
-            } else {
+            if !v.is_dirty() {
                 continue;
             }
-            trace!("Syncing chunk: {:?}", k.0);
-            if !v.entities.is_empty() {
-                trace!(
-                    "Chunk at {:?} has {} entities, saving.",
-                    k.0,
-                    v.entities.len()
-                );
-            } else {
-                trace!("Chunk at {:?} has no entities, saving.", k.0);
+            if v.stage < minimum_stage {
+                continue;
             }
-            save_chunk_internal(&self.storage_backend, k.0, k.1, v)?;
+
+            snapshots.push(ChunkSaveSnapshot {
+                pos: k.0,
+                dimension: k.1,
+                chunk: v.clone_without_transient_noise(),
+            });
             v.clear_dirty();
         }
 
+        for snapshot in snapshots {
+            let data = bitcode::serialize(&snapshot.chunk).expect("Unable to serialize chunk");
+            if let Err(err) = save_serialized_chunk_internal(
+                &self.storage_backend,
+                snapshot.pos,
+                snapshot.dimension,
+                &data,
+            ) {
+                if let Ok(chunk) = self.get_chunk(snapshot.pos, snapshot.dimension) {
+                    chunk.mark_dirty();
+                }
+
+                return Err(err);
+            }
+        }
+
         sync_internal(&self.storage_backend)
+    }
+}
+
+impl World {
+    pub fn insert_chunk(
+        &self,
+        pos: ChunkPos,
+        dimension: Dimension,
+        chunk: Chunk,
+    ) -> Result<(), WorldError> {
+        self.chunks.insert_chunk(pos, dimension, chunk)
+    }
+
+    pub fn get_chunk(
+        &'_ self,
+        pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<RefChunk<'_>, WorldError> {
+        self.chunks.get_chunk(pos, dimension)
+    }
+
+    pub fn get_chunk_mut(
+        &'_ self,
+        pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<MutChunk<'_>, WorldError> {
+        self.chunks.get_chunk_mut(pos, dimension)
+    }
+
+    pub fn chunk_exists(&self, pos: ChunkPos, dimension: Dimension) -> Result<bool, WorldError> {
+        self.chunks.chunk_exists(pos, dimension)
+    }
+
+    pub fn delete_chunk(&self, pos: ChunkPos, dimension: Dimension) -> Result<(), WorldError> {
+        self.chunks.delete_chunk(pos, dimension)
+    }
+
+    pub fn sync(&self) -> Result<(), WorldError> {
+        self.chunks.sync(self.final_generation_stage())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use gen_core::GenStage;
+    use temper_storage::lmdb::StorageBackend;
+    use tempfile::TempDir;
+    use wyhash::WyHasherBuilder;
+
+    use super::*;
+
+    fn test_store() -> (ChunkStore, TempDir) {
+        let temp_dir = tempfile::tempdir().expect("temp dir should be created");
+        let storage =
+            StorageBackend::initialize(Some(temp_dir.path().to_path_buf()), 1024 * 1024 * 1024)
+                .expect("storage should initialize");
+
+        (
+            ChunkStore::new(storage, false, WyHasherBuilder::default()),
+            temp_dir,
+        )
+    }
+
+    #[test]
+    fn sync_skips_dirty_chunks_below_the_save_stage() {
+        let (store, _temp_dir) = test_store();
+        let pos = ChunkPos::new(0, 0);
+        let mut chunk = Chunk::new_empty();
+        chunk.stage = GenStage::FEATURES.raw();
+        chunk.mark_dirty();
+        store.cache.insert((pos, Dimension::Overworld), chunk);
+
+        store
+            .sync(GenStage::FULL.raw())
+            .expect("sync should succeed");
+
+        let cached = store
+            .get_cache()
+            .get(&(pos, Dimension::Overworld))
+            .expect("skipped chunk should stay cached");
+        assert!(
+            cached.is_dirty(),
+            "skipped partial chunks should remain dirty for a later full save"
+        );
+
+        drop(cached);
+        store.get_cache().clear();
+        assert!(
+            matches!(
+                store.get_chunk(pos, Dimension::Overworld),
+                Err(WorldError::ChunkNotFound)
+            ),
+            "partial chunks should not be written to storage"
+        );
+    }
+
+    #[test]
+    fn sync_saves_dirty_chunks_at_the_save_stage() {
+        let (store, _temp_dir) = test_store();
+        let pos = ChunkPos::new(1, 0);
+        let mut chunk = Chunk::new_empty();
+        chunk.stage = GenStage::FULL.raw();
+        chunk.mark_dirty();
+        store.cache.insert((pos, Dimension::Overworld), chunk);
+
+        store
+            .sync(GenStage::FULL.raw())
+            .expect("sync should succeed");
+
+        let cached = store
+            .get_cache()
+            .get(&(pos, Dimension::Overworld))
+            .expect("saved chunk should stay cached");
+        assert!(
+            !cached.is_dirty(),
+            "saved full chunks should be marked clean after snapshotting"
+        );
+
+        drop(cached);
+        store.get_cache().clear();
+        let loaded = store
+            .get_chunk(pos, Dimension::Overworld)
+            .expect("full chunk should reload from storage");
+        assert_eq!(loaded.stage, GenStage::FULL.raw());
     }
 }

@@ -23,6 +23,7 @@ impl World {
         uuid: uuid::Uuid,
     ) -> Result<Option<T>, WorldError> {
         if !self
+            .chunks
             .storage_backend
             .table_exists("player_data".to_string())?
         {
@@ -33,6 +34,7 @@ impl World {
             return Ok(None);
         }
         let data = self
+            .chunks
             .storage_backend
             .get("player_data".to_string(), uuid.as_u128())
             .map_err(WorldError::DatabaseError);
@@ -61,14 +63,17 @@ impl World {
         data: &T,
     ) -> Result<bool, WorldError> {
         if !self
+            .chunks
             .storage_backend
             .table_exists("player_data".to_string())?
         {
-            self.storage_backend
+            self.chunks
+                .storage_backend
                 .create_table("player_data".to_string())
                 .map_err(WorldError::DatabaseError)?;
         }
-        self.storage_backend
+        self.chunks
+            .storage_backend
             .upsert(
                 "player_data".to_string(),
                 uuid.as_u128(),

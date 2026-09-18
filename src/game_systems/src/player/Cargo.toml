@@ -1,10 +1,11 @@
 [package]
 name = "player"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2024"
 
 [dependencies]
 bevy_ecs = { workspace = true }
+temper-command-infra = { workspace = true }
 temper-components = { workspace = true }
 temper-config = { workspace = true }
 temper-inventories = { workspace = true }
@@ -26,6 +27,7 @@ interactions = { workspace = true }
 rand = { workspace = true }
 bitcode = { workspace = true }
 temper-permissions = { workspace = true }
+temper-blocks = { workspace = true }
 
 [lints]
 workspace = true

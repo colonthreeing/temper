@@ -1,12 +1,12 @@
 [package]
 name = "temper-default-commands"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = "2024"
 
 [dependencies]
 temper-messages = { workspace = true }
 temper-components = { workspace = true }
-temper-commands = { workspace = true }
+temper-command-infra = { workspace = true }
 temper-macros = { workspace = true }
 temper-text = { workspace = true }
 temper-core = { workspace = true }
@@ -21,12 +21,15 @@ temper-state = { workspace = true }
 temper-resources = { workspace = true }
 temper-entities = { workspace = true }
 temper-permissions = { workspace = true }
+temper-particles = { workspace = true }
+temper-world-format = { workspace = true }
 
 ctor = { workspace = true }
 tracing = { workspace = true }
 bevy_ecs = { workspace = true }
 uuid = { workspace = true }
 rand = { workspace = true }
+bevy_math = { workspace = true }
 
 [lints]
 workspace = true

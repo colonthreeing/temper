@@ -23,6 +23,9 @@ pub(crate) const DEFAULT_CONFIG: &str =
 /// - `whitelist`: Whether the server whitelist is enabled or not.
 /// - `chunk_render_distance`: The render distance of the chunks. This is the number of chunks that will be
 ///   loaded around the player.
+/// - `op_by_default`: Whether players are op by default or not.
+/// - `default_gamemode`: The default gamemode that players will be in when they join the server.
+/// - `block_scanner_ips`: Whether to enable the block scanner IPs feature. This will block IPs that are known to be used by scanners.
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub struct ServerConfig {
     pub host: String,
@@ -38,10 +41,12 @@ pub struct ServerConfig {
     pub online_mode: bool,
     pub whitelist: bool,
     pub chunk_render_distance: u32,
+    pub op_by_default: bool,
     pub default_gamemode: String,
     pub block_scanner_ips: bool,
     pub dashboard: DashboardConfig,
     pub performance: PerformanceConfig,
+    pub world_gen: WorldGenConfig,
 }
 
 /// The database configuration section from [ServerConfig].
@@ -77,6 +82,17 @@ pub struct DashboardConfig {
 pub struct PerformanceConfig {
     pub chunks_per_tick_min: u32,
     pub chunks_per_tick: i32,
+}
+
+/// World generation config
+///
+/// Fields:
+/// - `seed`: The seed to use
+/// - `generator`: The generator to use
+#[derive(Debug, Deserialize, Serialize, Default)]
+pub struct WorldGenConfig {
+    pub seed: String,
+    pub generator: String,
 }
 
 pub fn create_config() -> ServerConfig {
@@ -125,9 +141,14 @@ pub fn create_dummy_config() -> ServerConfig {
             port: 8080,
             secret: "not very secret".to_string(),
         },
+        op_by_default: true,
         performance: PerformanceConfig {
             chunks_per_tick_min: 5,
             chunks_per_tick: 10,
+        },
+        world_gen: WorldGenConfig {
+            seed: "dummy".to_string(),
+            generator: "normal".to_string(),
         },
     }
 }

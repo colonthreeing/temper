@@ -60,6 +60,29 @@ impl BlockPos {
             ),
         }
     }
+
+    pub fn above(&self) -> BlockPos {
+        BlockPos {
+            pos: IVec3::new(self.pos.x, self.pos.y + 1, self.pos.z),
+        }
+    }
+
+    pub fn below(&self) -> BlockPos {
+        BlockPos {
+            pos: IVec3::new(self.pos.x, self.pos.y - 1, self.pos.z),
+        }
+    }
+
+    pub fn deterministic_rand(&self, seed: u64) -> u64 {
+        wyhash::wyhash(
+            self.pos
+                .to_array()
+                .map(|b| b.to_be_bytes())
+                .concat()
+                .as_slice(),
+            seed,
+        )
+    }
 }
 
 impl From<NetworkPosition> for BlockPos {
@@ -88,6 +111,16 @@ impl Add<(i32, i32, i32)> for BlockPos {
     fn add(self, rhs: (i32, i32, i32)) -> Self::Output {
         Self {
             pos: self.pos + IVec3::from(rhs),
+        }
+    }
+}
+
+impl Add<IVec3> for BlockPos {
+    type Output = BlockPos;
+
+    fn add(self, rhs: IVec3) -> Self::Output {
+        Self {
+            pos: self.pos + rhs,
         }
     }
 }
@@ -236,7 +269,7 @@ impl From<(u8, u8)> for ChunkColumnPos {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ChunkBlockPos {
     pos: I16Vec3,
 }

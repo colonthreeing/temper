@@ -129,13 +129,13 @@ fn matches_crafting_shapeless(recipe: &Recipe, grid: [[Option<&Item>; 3]; 3]) ->
 
     let mut used = vec![false; items.len()];
 
-    'outer: for ingredient in *ingredients {
+    'outer: for allowed in *ingredients {
         for (i, item) in items.iter().enumerate() {
             if used[i] {
                 continue;
             }
 
-            if symbol_matches_item(std::slice::from_ref(ingredient), item) {
+            if symbol_matches_item(allowed, item) {
                 used[i] = true;
                 continue 'outer;
             }
@@ -230,7 +230,7 @@ mod tests {
             [None, Some(&Item::STICK), None],
         ]);
 
-        assert_eq!(recipes, [&Recipe::RECIPE_1387]);
+        assert_eq!(recipes, [&Recipe::WOODEN_PICKAXE]);
     }
 
     #[test]
@@ -262,7 +262,7 @@ mod tests {
         assert_eq!(recipes1, recipes2);
         assert_eq!(recipes2, recipes3);
         assert_eq!(recipes3, recipes4);
-        assert_eq!(recipes4, [&Recipe::RECIPE_807])
+        assert_eq!(recipes4, [&Recipe::OAK_BUTTON])
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod tests {
         let recipes = get_recipes_from_2x2([[Some(&Item::OAK_LOG), None], [None, None]]);
 
         assert_eq!(recipes.len(), 1);
-        assert_eq!(recipes, [&Recipe::RECIPE_813]);
+        assert_eq!(recipes, [&Recipe::OAK_PLANKS]);
     }
 
     #[test]
@@ -280,6 +280,6 @@ mod tests {
             [Some(&Item::OAK_PLANKS), None],
         ]);
 
-        assert_eq!(recipes, [&Recipe::RECIPE_1150]);
+        assert_eq!(recipes, [&Recipe::STICK]);
     }
 }

@@ -7,6 +7,9 @@ Cargo.lock
 config.toml
 .temp
 
+assets/generated/*
+assets/.generate.lock
+
 .etc/blocks.json
 
 flame.svg

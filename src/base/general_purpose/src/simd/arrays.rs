@@ -30,8 +30,10 @@ pub fn u8_slice_to_u32_be(input: &[u8]) -> Vec<u32> {
 
 fn u8_slice_to_u32_be_normal(input: &[u8]) -> Vec<u32> {
     input
-        .chunks_exact(4)
-        .map(|chunk| u32::from_be_bytes(chunk.try_into().unwrap()))
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .map(|chunk| u32::from_be_bytes(*chunk))
         .collect()
 }
 
@@ -50,8 +52,8 @@ unsafe fn u8_slice_to_u32_be_simd(input: &[u8]) -> Vec<u32> {
         3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12, 19, 18, 17, 16, 23, 22, 21, 20, 27,
         26, 25, 24, 31, 30, 29, 28,
     );
-    let mut input = input.chunks_exact(32);
-    for (i, chunk) in input.by_ref().enumerate() {
+    let input = input.as_chunks::<32>();
+    for (i, chunk) in input.0.iter().enumerate() {
         #[expect(clippy::cast_ptr_alignment)]
         let out = output.as_mut_ptr().cast::<__m256i>().add(i);
         let data = _mm256_loadu_si256(chunk.as_ptr().cast());
@@ -60,12 +62,11 @@ unsafe fn u8_slice_to_u32_be_simd(input: &[u8]) -> Vec<u32> {
         output.set_len((i + 1) * 8);
     }
 
-    let input = input.remainder();
-    let input = input.chunks_exact(4);
+    let input = input.1;
+    let input = input.as_chunks::<4>().0;
 
-    for chunk in input {
-        let bytes: [u8; 4] = chunk.try_into().unwrap();
-        let val = u32::from_be_bytes(bytes);
+    for bytes in input {
+        let val = u32::from_be_bytes(*bytes);
         output.push(val);
     }
 
@@ -94,8 +95,10 @@ pub fn u8_slice_to_u64_be(input: &[u8]) -> Vec<u64> {
 
 fn u8_slice_to_u64_be_normal(input: &[u8]) -> Vec<u64> {
     input
-        .chunks_exact(8)
-        .map(|chunk| u64::from_be_bytes(chunk.try_into().unwrap()))
+        .as_chunks::<8>()
+        .0
+        .iter()
+        .map(|chunk| u64::from_be_bytes(*chunk))
         .collect()
 }
 
@@ -111,7 +114,7 @@ unsafe fn u8_slice_to_u64_be_simd(input: &[u8]) -> Vec<u64> {
     let mut output: Vec<u64> = Vec::new();
     output.reserve_exact(input.len() / 8);
 
-    let mut input = input.chunks_exact(32);
+    let input = input.as_chunks::<32>();
 
     let shuffle_mask = _mm256_setr_epi8(
         7, 6, 5, 4, 3, 2, 1, 0, // Reverse first u64
@@ -120,7 +123,7 @@ unsafe fn u8_slice_to_u64_be_simd(input: &[u8]) -> Vec<u64> {
         31, 30, 29, 28, 27, 26, 25, 24, // Reverse fourth u64
     );
 
-    for (i, chunk) in input.by_ref().enumerate() {
+    for (i, chunk) in input.0.iter().enumerate() {
         #[expect(clippy::cast_ptr_alignment)]
         let out = output.as_mut_ptr().cast::<__m256i>().add(i);
         let data = _mm256_loadu_si256(chunk.as_ptr().cast());
@@ -128,11 +131,10 @@ unsafe fn u8_slice_to_u64_be_simd(input: &[u8]) -> Vec<u64> {
         _mm256_storeu_si256(out, shuffled);
         output.set_len((i + 1) * 4);
     }
-    let input = input.remainder();
+    let input = input.1;
 
-    for chunk in input.chunks_exact(8) {
-        let bytes: [u8; 8] = chunk.try_into().unwrap();
-        let val = u64::from_be_bytes(bytes);
+    for bytes in input.as_chunks::<8>().0 {
+        let val = u64::from_be_bytes(*bytes);
         output.push(val);
     }
 
@@ -168,8 +170,8 @@ unsafe fn u32_slice_to_u8_be_simd(input: &[u32]) -> Vec<u8> {
         26, 25, 24, 31, 30, 29, 28,
     );
 
-    let mut input = input.chunks_exact(8);
-    for (i, chunk) in input.by_ref().enumerate() {
+    let input = input.as_chunks::<8>();
+    for (i, chunk) in input.0.iter().enumerate() {
         #[expect(clippy::cast_ptr_alignment)]
         let out = output.as_mut_ptr().cast::<__m256i>().add(i);
         let data = _mm256_loadu_si256(chunk.as_ptr().cast());
@@ -178,7 +180,7 @@ unsafe fn u32_slice_to_u8_be_simd(input: &[u32]) -> Vec<u8> {
         output.set_len((i + 1) * 32);
     }
 
-    let input = input.remainder();
+    let input = input.1;
 
     for val in input {
         let val = val.to_be_bytes();
@@ -213,9 +215,9 @@ unsafe fn u64_slice_to_u8_be_simd(input: &[u64]) -> Vec<u8> {
         31, 30, 29, 28, 27, 26, 25, 24, // Reverse fourth u64
     );
 
-    let mut input = input.chunks_exact(4);
+    let input = input.as_chunks::<4>();
 
-    for (i, chunk) in input.by_ref().enumerate() {
+    for (i, chunk) in input.0.iter().enumerate() {
         #[expect(clippy::cast_ptr_alignment)]
         let out = output.as_mut_ptr().cast::<__m256i>().add(i);
         let data = _mm256_loadu_si256(chunk.as_ptr().cast());
@@ -224,7 +226,7 @@ unsafe fn u64_slice_to_u8_be_simd(input: &[u64]) -> Vec<u8> {
         output.set_len((i + 1) * 32);
     }
 
-    for val in input.remainder() {
+    for val in input.1 {
         let val = val.to_be_bytes();
         output.extend_from_slice(&val);
     }

@@ -2,6 +2,7 @@
 //!
 //! Sent when a player interacts with another entity (attack, use, etc).
 
+use temper_codec::net_types::lpvec3::Lpvec3;
 use temper_codec::net_types::var_int::VarInt;
 use temper_macros::{NetDecode, packet};
 
@@ -12,8 +13,6 @@ use temper_macros::{NetDecode, packet};
 pub enum InteractionType {
     /// Interact with the entity (right-click)
     Interact = 0,
-    /// Attack the entity (left-click)
-    Attack = 1,
     /// Interact at a specific position
     InteractAt = 2,
 }
@@ -28,15 +27,9 @@ pub struct InteractEntity {
     pub entity_id: VarInt,
     /// The type of interaction
     pub interaction_type: InteractionType,
+    pub target_offset: Lpvec3,
     // Note: interact_at has additional target_x, target_y, target_z, hand fields
     // For now we'll only handle the attack case properly
     /// Whether the player is sneaking
     pub sneaking: bool,
-}
-
-impl InteractEntity {
-    /// Check if this is an attack interaction.
-    pub fn is_attack(&self) -> bool {
-        self.interaction_type == InteractionType::Attack
-    }
 }

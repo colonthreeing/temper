@@ -1,6 +1,6 @@
 [package]
 name = "temper-config"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 description = "Temper configuration utilities"
 

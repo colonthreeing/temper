@@ -15,7 +15,7 @@ world = { path = "./src/world" }
 interactions = { path = "./src/interactions" }
 tempfile = { workspace = true }
 bevy_ecs = { workspace = true }
-temper-commands = { workspace = true }
+temper-command-infra = { workspace = true }
 temper-config = { workspace = true }
 temper-scheduler = { workspace = true }
 temper-state = { workspace = true }
@@ -29,6 +29,8 @@ temper-macros = { workspace = true }
 temper-messages = { workspace = true }
 temper-resources = { workspace = true }
 temper-state = { workspace = true }
+temper-world = { workspace = true }
+temper-world-format = { workspace = true }
 
 [lints]
 workspace = true

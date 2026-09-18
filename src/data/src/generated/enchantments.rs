@@ -367,7 +367,7 @@ impl Enchantment {
         },
         anvil_cost: 2,
         slots: &[EnchantmentSlot::MAINHAND],
-        supported_items: "#minecraft:enchantable/sword",
+        supported_items: "#minecraft:enchantable/melee_weapon",
         weight: 5,
         max_level: 2,
         exclusive_set: None,
@@ -386,7 +386,7 @@ impl Enchantment {
         },
         anvil_cost: 4,
         slots: &[EnchantmentSlot::MAINHAND],
-        supported_items: "#minecraft:enchantable/sword",
+        supported_items: "#minecraft:enchantable/melee_weapon",
         weight: 2,
         max_level: 3,
         exclusive_set: None,
@@ -429,8 +429,27 @@ impl Enchantment {
         max_level: 3,
         exclusive_set: None,
     };
-    pub const LURE: Enchantment = Enchantment {
+    pub const LUNGE: Enchantment = Enchantment {
         id: 21,
+        name: "minecraft:lunge",
+        description: "enchantment.minecraft.lunge",
+        min_cost: Cost {
+            base: 5.0,
+            per_level_above_first: 8.0,
+        },
+        max_cost: Cost {
+            base: 25.0,
+            per_level_above_first: 8.0,
+        },
+        anvil_cost: 2,
+        slots: &[EnchantmentSlot::HAND],
+        supported_items: "#minecraft:enchantable/lunge",
+        weight: 5,
+        max_level: 3,
+        exclusive_set: None,
+    };
+    pub const LURE: Enchantment = Enchantment {
+        id: 22,
         name: "minecraft:lure",
         description: "enchantment.minecraft.lure",
         min_cost: Cost {
@@ -449,7 +468,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const MENDING: Enchantment = Enchantment {
-        id: 22,
+        id: 23,
         name: "minecraft:mending",
         description: "enchantment.minecraft.mending",
         min_cost: Cost {
@@ -468,7 +487,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const MULTISHOT: Enchantment = Enchantment {
-        id: 23,
+        id: 24,
         name: "minecraft:multishot",
         description: "enchantment.minecraft.multishot",
         min_cost: Cost {
@@ -487,7 +506,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/crossbow"),
     };
     pub const PIERCING: Enchantment = Enchantment {
-        id: 24,
+        id: 25,
         name: "minecraft:piercing",
         description: "enchantment.minecraft.piercing",
         min_cost: Cost {
@@ -506,7 +525,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/crossbow"),
     };
     pub const POWER: Enchantment = Enchantment {
-        id: 25,
+        id: 26,
         name: "minecraft:power",
         description: "enchantment.minecraft.power",
         min_cost: Cost {
@@ -525,7 +544,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const PROJECTILE_PROTECTION: Enchantment = Enchantment {
-        id: 26,
+        id: 27,
         name: "minecraft:projectile_protection",
         description: "enchantment.minecraft.projectile_protection",
         min_cost: Cost {
@@ -544,7 +563,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/armor"),
     };
     pub const PROTECTION: Enchantment = Enchantment {
-        id: 27,
+        id: 28,
         name: "minecraft:protection",
         description: "enchantment.minecraft.protection",
         min_cost: Cost {
@@ -563,7 +582,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/armor"),
     };
     pub const PUNCH: Enchantment = Enchantment {
-        id: 28,
+        id: 29,
         name: "minecraft:punch",
         description: "enchantment.minecraft.punch",
         min_cost: Cost {
@@ -582,7 +601,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const QUICK_CHARGE: Enchantment = Enchantment {
-        id: 29,
+        id: 30,
         name: "minecraft:quick_charge",
         description: "enchantment.minecraft.quick_charge",
         min_cost: Cost {
@@ -601,7 +620,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const RESPIRATION: Enchantment = Enchantment {
-        id: 30,
+        id: 31,
         name: "minecraft:respiration",
         description: "enchantment.minecraft.respiration",
         min_cost: Cost {
@@ -620,7 +639,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const RIPTIDE: Enchantment = Enchantment {
-        id: 31,
+        id: 32,
         name: "minecraft:riptide",
         description: "enchantment.minecraft.riptide",
         min_cost: Cost {
@@ -639,7 +658,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/riptide"),
     };
     pub const SHARPNESS: Enchantment = Enchantment {
-        id: 32,
+        id: 33,
         name: "minecraft:sharpness",
         description: "enchantment.minecraft.sharpness",
         min_cost: Cost {
@@ -658,7 +677,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/damage"),
     };
     pub const SILK_TOUCH: Enchantment = Enchantment {
-        id: 33,
+        id: 34,
         name: "minecraft:silk_touch",
         description: "enchantment.minecraft.silk_touch",
         min_cost: Cost {
@@ -677,7 +696,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/mining"),
     };
     pub const SMITE: Enchantment = Enchantment {
-        id: 34,
+        id: 35,
         name: "minecraft:smite",
         description: "enchantment.minecraft.smite",
         min_cost: Cost {
@@ -696,7 +715,7 @@ impl Enchantment {
         exclusive_set: Some("#minecraft:exclusive_set/damage"),
     };
     pub const SOUL_SPEED: Enchantment = Enchantment {
-        id: 35,
+        id: 36,
         name: "minecraft:soul_speed",
         description: "enchantment.minecraft.soul_speed",
         min_cost: Cost {
@@ -715,7 +734,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const SWEEPING_EDGE: Enchantment = Enchantment {
-        id: 36,
+        id: 37,
         name: "minecraft:sweeping_edge",
         description: "enchantment.minecraft.sweeping_edge",
         min_cost: Cost {
@@ -728,13 +747,13 @@ impl Enchantment {
         },
         anvil_cost: 4,
         slots: &[EnchantmentSlot::MAINHAND],
-        supported_items: "#minecraft:enchantable/sword",
+        supported_items: "#minecraft:enchantable/sweeping",
         weight: 2,
         max_level: 3,
         exclusive_set: None,
     };
     pub const SWIFT_SNEAK: Enchantment = Enchantment {
-        id: 37,
+        id: 38,
         name: "minecraft:swift_sneak",
         description: "enchantment.minecraft.swift_sneak",
         min_cost: Cost {
@@ -753,7 +772,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const THORNS: Enchantment = Enchantment {
-        id: 38,
+        id: 39,
         name: "minecraft:thorns",
         description: "enchantment.minecraft.thorns",
         min_cost: Cost {
@@ -772,7 +791,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const UNBREAKING: Enchantment = Enchantment {
-        id: 39,
+        id: 40,
         name: "minecraft:unbreaking",
         description: "enchantment.minecraft.unbreaking",
         min_cost: Cost {
@@ -791,7 +810,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const VANISHING_CURSE: Enchantment = Enchantment {
-        id: 40,
+        id: 41,
         name: "minecraft:vanishing_curse",
         description: "enchantment.minecraft.vanishing_curse",
         min_cost: Cost {
@@ -810,7 +829,7 @@ impl Enchantment {
         exclusive_set: None,
     };
     pub const WIND_BURST: Enchantment = Enchantment {
-        id: 41,
+        id: 42,
         name: "minecraft:wind_burst",
         description: "enchantment.minecraft.wind_burst",
         min_cost: Cost {
@@ -853,6 +872,7 @@ impl Enchantment {
             "minecraft:looting" => Some(&Self::LOOTING),
             "minecraft:loyalty" => Some(&Self::LOYALTY),
             "minecraft:luck_of_the_sea" => Some(&Self::LUCK_OF_THE_SEA),
+            "minecraft:lunge" => Some(&Self::LUNGE),
             "minecraft:lure" => Some(&Self::LURE),
             "minecraft:mending" => Some(&Self::MENDING),
             "minecraft:multishot" => Some(&Self::MULTISHOT),
@@ -901,27 +921,28 @@ impl Enchantment {
             18 => Some(&Self::LOOTING),
             19 => Some(&Self::LOYALTY),
             20 => Some(&Self::LUCK_OF_THE_SEA),
-            21 => Some(&Self::LURE),
-            22 => Some(&Self::MENDING),
-            23 => Some(&Self::MULTISHOT),
-            24 => Some(&Self::PIERCING),
-            25 => Some(&Self::POWER),
-            26 => Some(&Self::PROJECTILE_PROTECTION),
-            27 => Some(&Self::PROTECTION),
-            28 => Some(&Self::PUNCH),
-            29 => Some(&Self::QUICK_CHARGE),
-            30 => Some(&Self::RESPIRATION),
-            31 => Some(&Self::RIPTIDE),
-            32 => Some(&Self::SHARPNESS),
-            33 => Some(&Self::SILK_TOUCH),
-            34 => Some(&Self::SMITE),
-            35 => Some(&Self::SOUL_SPEED),
-            36 => Some(&Self::SWEEPING_EDGE),
-            37 => Some(&Self::SWIFT_SNEAK),
-            38 => Some(&Self::THORNS),
-            39 => Some(&Self::UNBREAKING),
-            40 => Some(&Self::VANISHING_CURSE),
-            41 => Some(&Self::WIND_BURST),
+            21 => Some(&Self::LUNGE),
+            22 => Some(&Self::LURE),
+            23 => Some(&Self::MENDING),
+            24 => Some(&Self::MULTISHOT),
+            25 => Some(&Self::PIERCING),
+            26 => Some(&Self::POWER),
+            27 => Some(&Self::PROJECTILE_PROTECTION),
+            28 => Some(&Self::PROTECTION),
+            29 => Some(&Self::PUNCH),
+            30 => Some(&Self::QUICK_CHARGE),
+            31 => Some(&Self::RESPIRATION),
+            32 => Some(&Self::RIPTIDE),
+            33 => Some(&Self::SHARPNESS),
+            34 => Some(&Self::SILK_TOUCH),
+            35 => Some(&Self::SMITE),
+            36 => Some(&Self::SOUL_SPEED),
+            37 => Some(&Self::SWEEPING_EDGE),
+            38 => Some(&Self::SWIFT_SNEAK),
+            39 => Some(&Self::THORNS),
+            40 => Some(&Self::UNBREAKING),
+            41 => Some(&Self::VANISHING_CURSE),
+            42 => Some(&Self::WIND_BURST),
             _ => None,
         }
     }

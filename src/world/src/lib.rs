@@ -1,9 +1,13 @@
 mod db_wrap;
+mod generation;
+mod helpers;
 mod importing;
 pub mod player;
 
 use dashmap::DashMap;
+pub use generation::WorldChunkGenerator;
 use std::fs::create_dir_all;
+use std::hash::{BuildHasher, Hasher};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use temper_config::ServerConfig;
@@ -12,18 +16,23 @@ use temper_core::pos::ChunkPos;
 use temper_general_purpose::paths::get_root_path;
 use temper_storage::lmdb::StorageBackend;
 pub use temper_world_format::errors::WorldError;
+use temper_world_format::errors::WorldError::InvalidWorldGenerator;
 use temper_world_format::Chunk;
 use tracing::{error, warn};
 pub use world_db::*;
 pub use world_gen;
-use world_gen::WorldGenerator;
 use wyhash::WyHasherBuilder;
 
 #[derive(Clone)]
 pub struct World {
+    pub chunks: ChunkStore,
+    pub chunk_generator: WorldChunkGenerator,
+}
+
+#[derive(Clone)]
+pub struct ChunkStore {
     pub storage_backend: StorageBackend,
     cache: ChunkCache,
-    pub world_generator: WorldGenerator,
     verify: bool,
 }
 
@@ -32,7 +41,10 @@ impl World {
     ///
     /// You'd probably want to call this at the start of your program. And then use the returned
     /// in a state struct or something.
-    pub fn new(backend_path: impl Into<PathBuf>, seed: u64, config: &ServerConfig) -> Self {
+    pub fn new(
+        backend_path: impl Into<PathBuf>,
+        config: &ServerConfig,
+    ) -> Result<Self, WorldError> {
         if let Err(e) = check_config_validity(config) {
             error!("Fatal error in database config: {}", e);
             exit(1);
@@ -47,71 +59,84 @@ impl World {
         let storage_backend = StorageBackend::initialize(Some(backend_path), map_size)
             .expect("Failed to initialize database");
 
-        let rand_seed = rand::random();
+        let seed = {
+            let mut hasher = wyhash::WyHasherBuilder::default().build_hasher();
+            hasher.write(&config.world_gen.seed.clone().into_bytes());
+            hasher.finish()
+        };
 
-        let cache = ChunkCache::with_hasher(WyHasherBuilder::new(rand_seed));
-        let world_generator = WorldGenerator::new(seed);
-
-        World {
+        let chunks = ChunkStore::new(
             storage_backend,
-            cache,
-            world_generator,
-            verify: config.database.verify_chunk_data,
+            config.database.verify_chunk_data,
+            WyHasherBuilder::new(seed),
+        );
+        let chunk_generator = WorldChunkGenerator::from_name(&config.world_gen.generator, seed);
+
+        if let Some(chunk_generator) = chunk_generator {
+            Ok(World {
+                chunks,
+                chunk_generator,
+            })
+        } else {
+            Err(InvalidWorldGenerator(
+                match config.world_gen.generator.as_str() {
+                    "" => "<empty string>".to_string(),
+                    other => other.to_string(),
+                },
+            ))
+        }
+    }
+
+    pub fn get_cache(&self) -> &ChunkCache {
+        self.chunks.get_cache()
+    }
+
+    pub fn final_generation_stage(&self) -> u8 {
+        self.chunk_generator.final_stage().raw()
+    }
+
+    pub fn is_fully_generated(&self, chunk: &Chunk) -> bool {
+        chunk.stage >= self.final_generation_stage()
+    }
+
+    /// Loads a chunk from the database or cache, generating or advancing it first if needed.
+    pub fn get_or_generate_chunk(
+        &'_ self,
+        chunk_pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<RefChunk<'_>, WorldError> {
+        self.chunk_generator
+            .generate(&self.chunks, dimension, chunk_pos)?;
+        self.get_chunk(chunk_pos, dimension)
+    }
+
+    /// Loads a chunk from the database or cache, generating or advancing it first if needed. Returns a mutable reference.
+    pub fn get_or_generate_mut(
+        &self,
+        chunk_pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<MutChunk<'_>, WorldError> {
+        self.chunk_generator
+            .generate(&self.chunks, dimension, chunk_pos)?;
+        self.get_chunk_mut(chunk_pos, dimension)
+    }
+}
+
+impl ChunkStore {
+    pub fn new(storage_backend: StorageBackend, verify: bool, hasher: WyHasherBuilder) -> Self {
+        Self {
+            storage_backend,
+            cache: ChunkCache::with_hasher(hasher),
+            verify,
         }
     }
 
     pub fn get_cache(&self) -> &ChunkCache {
         &self.cache
     }
-
-    /// Loads a chunk from the database or cache, or generates it if it doesn't exist.
-    pub fn get_or_generate_chunk(
-        &'_ self,
-        chunk_pos: ChunkPos,
-        dimension: Dimension,
-    ) -> Result<RefChunk<'_>, WorldError> {
-        if self.chunk_exists(chunk_pos, dimension)? {
-            self.get_chunk(chunk_pos, dimension)
-        } else {
-            let chunk = self
-                .world_generator
-                .generate_chunk(chunk_pos)
-                .map_err(|err| {
-                    WorldError::WorldGenerationError(format!(
-                        "Failed to generate chunk at {:?}: {}",
-                        chunk_pos, err
-                    ))
-                })?;
-            self.insert_chunk(chunk_pos, dimension, chunk)?;
-            self.get_chunk(chunk_pos, dimension)
-        }
-    }
-
-    /// Loads a chunk from the database or cache, or generates it if it doesn't exist. Returns a mutable reference.
-    pub fn get_or_generate_mut(
-        &self,
-        chunk_pos: ChunkPos,
-        dimension: Dimension,
-    ) -> Result<MutChunk<'_>, WorldError> {
-        if self.chunk_exists(chunk_pos, dimension)? {
-            self.get_chunk_mut(chunk_pos, dimension)
-        } else {
-            let chunk = self
-                .world_generator
-                .generate_chunk(chunk_pos)
-                .map_err(|err| {
-                    WorldError::WorldGenerationError(format!(
-                        "Failed to generate chunk at {:?}: {}",
-                        chunk_pos, err
-                    ))
-                })?;
-            self.insert_chunk(chunk_pos, dimension, chunk)?;
-            self.get_chunk_mut(chunk_pos, dimension)
-        }
-    }
 }
 
-type ChunkCache = DashMap<(ChunkPos, Dimension), Chunk, WyHasherBuilder>;
+pub type ChunkCache = DashMap<(ChunkPos, Dimension), Chunk, WyHasherBuilder>;
 pub type MutChunk<'a> = dashmap::mapref::one::RefMut<'a, (ChunkPos, Dimension), Chunk>;
 pub type RefChunk<'a> = dashmap::mapref::one::Ref<'a, (ChunkPos, Dimension), Chunk>;
 
@@ -172,9 +197,9 @@ mod tests {
     fn dump_chunk() {
         let world = World::new(
             std::env::current_dir().unwrap().join("../../../world"),
-            0,
             &create_dummy_config(),
-        );
+        )
+        .unwrap();
         let chunk = world
             .get_chunk(ChunkPos::new(1, 1), Dimension::Overworld)
             .expect(

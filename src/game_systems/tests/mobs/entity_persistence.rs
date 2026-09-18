@@ -15,12 +15,12 @@ use temper_entities::entity_types::EntityTypeEnum;
 use temper_entities::markers::entity_types::{Cow, Fox, Pig};
 use temper_entities::markers::{HasCollisions, HasGravity, HasWaterDrag};
 use temper_entities::{CowBundle, FoxBundle, MobBundle, MobKind, PigBundle};
+use temper_messages::SpawnMobCommand;
 use temper_messages::load_chunk_entities::LoadChunkEntities;
 use temper_messages::save_chunk_entities::SaveChunkEntities;
-use temper_messages::SpawnMobCommand;
 use temper_resources::world_sync_tracker::WorldSyncTracker;
 use temper_scheduler::Scheduler;
-use temper_state::{create_test_state, GlobalStateResource};
+use temper_state::{GlobalStateResource, create_test_state};
 
 fn emit_save_for(
     chunk: temper_core::pos::ChunkPos,
@@ -39,13 +39,13 @@ fn emit_load_for(
 }
 
 fn emit_spawn_command(
-    player_entity: Entity,
+    location: Position,
     entity_type: EntityTypeEnum,
 ) -> impl FnMut(MessageWriter<SpawnMobCommand>) {
     move |mut writer: MessageWriter<SpawnMobCommand>| {
         writer.write(SpawnMobCommand {
             entity_type,
-            player_entity,
+            location,
         });
     }
 }
@@ -146,8 +146,11 @@ fn load_cows_into_replacement_ecs(
 fn run_registered_shutdown_schedule(world: &mut World) {
     let mut timed = Scheduler::new();
     let mut shutdown_schedule = Schedule::default();
-    let state = create_test_state();
-    temper_game_systems::register_schedules(&mut timed, &mut shutdown_schedule, state.0 .0);
+    let state = world
+        .get_resource::<GlobalStateResource>()
+        .expect("world should have a state resource")
+        .clone();
+    temper_game_systems::register_schedules(&mut timed, &mut shutdown_schedule, state.0);
     shutdown_schedule.run(world);
 }
 
@@ -242,10 +245,50 @@ fn pig_round_trips_through_chunk_save_and_load() {
     assert!(has_collisions, "loaded pig should regain HasCollisions");
     assert!(has_water_drag, "loaded pig should regain HasWaterDrag");
     assert_eq!(identity.uuid, expected_identity.uuid);
-    assert_eq!(identity.entity_id, expected_identity.entity_id);
     assert_eq!(loaded_position.coords, position.coords);
     assert_eq!(last_chunk.0, chunk);
     assert_eq!(last_synced.0, expected_last_synced.0);
+}
+
+#[test]
+fn chunk_storage_does_not_persist_game_id() {
+    let mut world = World::new();
+    temper_messages::register_messages(&mut world);
+
+    let (state, _temp_dir) = create_test_state();
+    world.insert_resource(state);
+
+    let position = Position::new(5.5, 64.0, 7.5);
+    let chunk = position.chunk();
+    let bundle = PigBundle::new(position);
+    let expected_identity = bundle.identity.clone();
+    let original_game_id = bundle.game_id;
+
+    spawn_pig(&mut world, bundle);
+
+    let mut save_schedule = Schedule::default();
+    save_schedule.add_systems((emit_save_for(chunk), save_mob_bundles).chain());
+    save_schedule.run(&mut world);
+
+    let state = world.resource::<temper_state::GlobalStateResource>();
+    let saved_chunk = state
+        .0
+        .world
+        .get_chunk(chunk, Dimension::Overworld)
+        .expect("chunk should exist after save");
+    let saved_entity = saved_chunk
+        .entities
+        .get(&expected_identity.uuid)
+        .expect("saved pig should be present in chunk storage");
+    let saved_bundle = MobBundle::deserialize(saved_entity.value().0, &saved_entity.value().1)
+        .expect("saved pig bundle should deserialize");
+
+    let MobBundle::Pig(saved_pig) = saved_bundle else {
+        panic!("saved entity should deserialize as a pig");
+    };
+
+    assert_eq!(saved_pig.identity.uuid, expected_identity.uuid);
+    assert_ne!(saved_pig.game_id, original_game_id);
 }
 
 #[test]
@@ -306,14 +349,10 @@ fn spawn_command_cow_survives_registered_shutdown_reload() {
 
     let expected_identity = {
         let mut first_world = ecs_world_with_sync(state.clone());
-        let player = first_world
-            .spawn((player_position, Rotation::new(0.0, 0.0)))
-            .id();
-
         let mut spawn_schedule = Schedule::default();
         spawn_schedule.add_systems(
             (
-                emit_spawn_command(player, EntityTypeEnum::Cow),
+                emit_spawn_command(expected_position, EntityTypeEnum::Cow),
                 player::entity_spawn::spawn_command_processor,
                 handle_spawn_mob_bundle,
             )
@@ -824,7 +863,6 @@ fn fox_loads_in_a_separate_ecs_world_after_save() {
     assert!(has_collisions, "loaded fox should regain HasCollisions");
     assert!(has_water_drag, "loaded fox should regain HasWaterDrag");
     assert_eq!(identity.uuid, expected_identity.uuid);
-    assert_eq!(identity.entity_id, expected_identity.entity_id);
     assert_eq!(loaded_position.coords, position.coords);
     assert_eq!(last_chunk.0, chunk);
     assert_eq!(last_synced.0, expected_last_synced.0);

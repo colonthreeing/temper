@@ -59,18 +59,41 @@ pub struct RegistryEntry {
 
 #[cfg(test)]
 mod tests {
-    use crate::outgoing::registry_data::RegistryEntry;
+    use crate::outgoing::registry_data::{REGISTRY_PACKETS, RegistryEntry};
     use indexmap::IndexMap;
     use serde_json::Value;
     use std::io::Write;
     use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 
     #[test]
+    fn includes_tag_dependent_synced_registries() {
+        let registry_ids = REGISTRY_PACKETS
+            .iter()
+            .map(|packet| packet.registry_id.as_str())
+            .collect::<Vec<_>>();
+
+        assert!(registry_ids.contains(&"minecraft:enchantment"));
+        assert!(registry_ids.contains(&"minecraft:instrument"));
+        assert!(registry_ids.contains(&"minecraft:dialog"));
+        assert!(registry_ids.contains(&"minecraft:timeline"));
+        assert!(registry_ids.contains(&"minecraft:world_clock"));
+        assert!(registry_ids.contains(&"minecraft:worldgen/biome"));
+
+        assert!(!registry_ids.contains(&"minecraft:trade_set"));
+        assert!(!registry_ids.contains(&"minecraft:villager_trade"));
+        assert!(!registry_ids.contains(&"minecraft:enchantment_provider"));
+        assert!(!registry_ids.contains(&"minecraft:trial_spawner"));
+        assert!(!registry_ids.contains(&"minecraft:worldgen/configured_feature"));
+        assert!(!registry_ids.contains(&"minecraft:worldgen/flat_level_generator_preset"));
+        assert!(!registry_ids.contains(&"minecraft:worldgen/structure"));
+        assert!(!registry_ids.contains(&"minecraft:worldgen/world_preset"));
+    }
+
+    #[test]
     #[ignore]
     fn generate_nbt() {
-        let json_file = include_bytes!("../../../../../assets/data/registry_packets.json");
         let val: IndexMap<String, IndexMap<String, Value>> =
-            serde_json::from_slice(json_file).unwrap();
+            serde_json::from_str(temper_assets::generated::REGISTRY_PACKETS).unwrap();
 
         for (key, value_set) in val {
             let mut packets = vec![];

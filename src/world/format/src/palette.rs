@@ -3,6 +3,7 @@ use deepsize::DeepSizeOf;
 use serde_derive::{Deserialize, Serialize};
 use std::num::NonZeroU16;
 use temper_core::block_state_id::BlockStateId;
+use temper_macros::match_block;
 use type_hash::TypeHash;
 
 pub type PaletteIndex = u16;
@@ -163,7 +164,7 @@ impl BlockPalette {
             idx,
         );
 
-        let (_, count) = &mut self.palette[idx].unwrap();
+        let (_, count) = self.palette[idx].as_mut().unwrap();
 
         if count.get() == 1 {
             self.palette[idx] = None;
@@ -178,6 +179,20 @@ impl BlockPalette {
             .iter()
             .flatten()
             .map(|(state, count)| if *state != AIR { count.get() } else { 0 })
+            .sum()
+    }
+
+    pub fn fluid_count(&self) -> u16 {
+        self.palette
+            .iter()
+            .flatten()
+            .map(|(state, count)| {
+                if match_block!("water", *state) || match_block!("lava", *state) {
+                    count.get()
+                } else {
+                    0
+                }
+            })
             .sum()
     }
 
@@ -201,7 +216,12 @@ impl BlockPalette {
 
 #[cfg(test)]
 mod tests {
-    use crate::palette::BlockPalette;
+    use std::num::NonZeroU16;
+
+    use temper_macros::block;
+
+    use crate::palette::{BlockPalette, BlockPaletteResult};
+    use temper_core::block_state_id::BlockStateId;
 
     #[test]
     fn test_bit_width_calc() {
@@ -216,5 +236,38 @@ mod tests {
         assert_eq!(BlockPalette::bit_width_for_len(len_c), 4);
         assert_eq!(BlockPalette::bit_width_for_len(len_d), 4);
         assert_eq!(BlockPalette::bit_width_for_len(len_e), 8);
+    }
+
+    #[test]
+    fn test_add_block() {
+        let mut palette = BlockPalette::new();
+        match palette.add_block_with_count(block!("stone"), NonZeroU16::new(2).unwrap()) {
+            BlockPaletteResult::Normal(idx) => {
+                assert_eq!(idx, 1);
+                assert_eq!(palette.len(), 2);
+                assert_eq!(palette.block_count(), 2);
+            }
+            BlockPaletteResult::ShouldResize(_, _) => unreachable!(),
+            BlockPaletteResult::ConvertToUniform(_) => unreachable!(),
+        }
+    }
+
+    #[test]
+    fn test_remove_block() {
+        let mut palette = BlockPalette::new();
+        match palette.add_block_with_count(block!("stone"), NonZeroU16::new(2).unwrap()) {
+            BlockPaletteResult::Normal(idx) => {
+                assert_eq!(idx, 1);
+                assert_eq!(palette.block_count(), 2);
+                palette.remove_block(idx);
+                assert_eq!(
+                    palette.block_count(),
+                    1,
+                    "expected block count to be 1 after remove_block"
+                );
+            }
+            BlockPaletteResult::ShouldResize(_, _) => unreachable!(),
+            BlockPaletteResult::ConvertToUniform(_) => unreachable!(),
+        }
     }
 }

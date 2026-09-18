@@ -41,6 +41,13 @@ pub fn lookup_block_hardness(block_name: &str) -> Option<f32> {
         .map(|hardness_u32| f32::from_bits(*hardness_u32))
 }
 
+/// Looks up a block entity type's protocol ID (e.g. 8) from its name
+/// (e.g. "minecraft:sign"). Used for the `entity_type` field in the
+/// block entity section of the chunk packet.
+pub fn lookup_block_entity_type_id(name: &str) -> Option<i32> {
+    BLOCK_ENTITY_TYPE_NAME_TO_ID.get(name).copied()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -61,7 +68,7 @@ mod tests {
             apple_id.is_some(),
             "lookup_item_protocol_id(\"minecraft:apple\") failed"
         );
-        assert_eq!(apple_id.unwrap(), 857);
+        assert_eq!(apple_id.unwrap(), 921);
 
         // Test "cobblestone"
         let cobble_id = lookup_item_protocol_id("minecraft:cobblestone");
@@ -84,7 +91,7 @@ mod tests {
         setup();
 
         // Test "apple" (ID 857)
-        let apple_name = lookup_item_name(857);
+        let apple_name = lookup_item_name(921);
         assert!(apple_name.is_some(), "lookup_item_name(857) failed");
         assert_eq!(apple_name.unwrap(), "minecraft:apple");
     }
@@ -124,5 +131,20 @@ mod tests {
             "lookup_item_to_block_id_str(\"1\") returned None"
         );
         assert_eq!(block_id_str.unwrap(), "1");
+    }
+
+    #[test]
+    fn test_lookup_block_entity_type_id() {
+        setup();
+
+        assert!(
+            lookup_block_entity_type_id("minecraft:sign").is_some(),
+            "sign should have a block entity type id"
+        );
+        assert!(
+            lookup_block_entity_type_id("minecraft:chest").is_some(),
+            "chest should have a block entity type id"
+        );
+        assert!(lookup_block_entity_type_id("minecraft:stone").is_none());
     }
 }

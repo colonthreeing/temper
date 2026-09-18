@@ -1,5 +1,6 @@
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
+use temper_core::block_face::BlockFace;
 use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode, Debug)]
@@ -7,7 +8,7 @@ use temper_macros::{NetDecode, packet};
 pub struct PlaceBlock {
     pub hand: VarInt,
     pub position: NetworkPosition,
-    pub face: VarInt,
+    pub face: BlockFace,
     pub cursor_x: f32,
     pub cursor_y: f32,
     pub cursor_z: f32,

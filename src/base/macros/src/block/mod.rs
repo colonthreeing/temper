@@ -8,7 +8,7 @@ use syn::{braced, Expr, Ident, Lit, LitStr, Result, Token};
 
 pub(crate) mod matches;
 
-const JSON_FILE: &[u8] = include_bytes!("../../../../../assets/data/blockstates.json");
+const JSON_FILE: &str = temper_assets::generated::BLOCKSTATES;
 
 struct Input {
     name: LitStr,
@@ -69,7 +69,7 @@ pub fn block(input: TokenStream) -> TokenStream {
     } else {
         format!("minecraft:{}", name.value())
     };
-    let mut buf = JSON_FILE.to_vec();
+    let mut buf = JSON_FILE.as_bytes().to_vec();
     let v = simd_json::to_owned_value(&mut buf).unwrap();
 
     let filtered_names = v
@@ -84,7 +84,7 @@ pub fn block(input: TokenStream) -> TokenStream {
         if filtered_names.is_empty() {
             return syn::Error::new_spanned(
                 name.clone(),
-                format!("block '{}' not found in blockstates.json", name_str),
+                format!("block '{}' not found in generated blockstates", name_str),
             )
             .to_compile_error()
             .into();

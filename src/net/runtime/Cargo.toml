@@ -1,6 +1,6 @@
 [package]
 name = "temper-net-runtime"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2024"
 
 [dependencies]
@@ -22,7 +22,6 @@ serde_json = { workspace = true }
 uuid = { workspace = true }
 temper-components = { workspace = true }
 rand = { workspace = true }
-temper-commands = { workspace = true }
 reqwest = { workspace = true }
 crossbeam-channel = { workspace = true }
 temper-text = { workspace = true }

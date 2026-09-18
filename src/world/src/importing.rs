@@ -54,7 +54,9 @@ impl World {
 
         progress.set_message("Setting up database and preparing import...");
 
-        self.storage_backend.create_table("chunks".to_string())?;
+        self.chunks
+            .storage_backend
+            .create_table("chunks".to_string())?;
 
         let start = std::time::Instant::now();
 
@@ -113,7 +115,7 @@ impl World {
                                 );
                                 progress.inc(1);
                                 if index == location_count - 1 {
-                                    self_clone.storage_backend.flush()?;
+                                    self_clone.chunks.storage_backend.flush()?;
                                 }
                                 res
                             }
@@ -134,7 +136,7 @@ impl World {
 
         progress.finish_with_message("Import complete");
 
-        arc_self.storage_backend.flush()?;
+        arc_self.chunks.storage_backend.flush()?;
 
         info!(
             "Imported {} chunks in {:?}",

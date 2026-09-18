@@ -34,7 +34,7 @@ pub(crate) fn build() -> TokenStream {
         for (tag, values) in tag_data.iter() {
             let tag_ident = format_ident!("{}_{}", const_ident, tag.to_shouty_snake_case());
 
-            let values = values.iter().map(|value| format!("minecraft:{value}"));
+            let values = values.iter().map(|value| namespaced(value));
 
             tag_names.extend(quote! {
                 &Self::#tag_ident,
@@ -67,5 +67,17 @@ pub(crate) fn build() -> TokenStream {
 
             #lookup_fns
         }
+    }
+}
+
+fn namespaced(value: &str) -> String {
+    if let Some(value) = value.strip_prefix('#') {
+        return format!("#{}", namespaced(value));
+    }
+
+    if value.contains(':') {
+        value.to_string()
+    } else {
+        format!("minecraft:{value}")
     }
 }

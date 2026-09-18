@@ -16,7 +16,7 @@ impl WorldTime {
 
     #[inline]
     pub fn advance_tick(&mut self) {
-        self.0 = (self.0 + 1) % Self::MAX_TIME;
+        self.0 = self.0.wrapping_add(1) % Self::MAX_TIME;
     }
 
     #[inline]

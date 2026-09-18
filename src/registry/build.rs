@@ -14,7 +14,7 @@ struct BlockStateEntry {
 }
 
 #[derive(Deserialize)]
-struct ItemEntry {
+struct ProtocolIdEntry {
     protocol_id: i32,
 }
 
@@ -30,7 +30,17 @@ struct BlockRegistry {
     entries: HashMap<String, BlockEntry>,
 }
 
-// Type for registries.json: "minecraft:item" -> "entries" -> "minecraft:stone" -> ItemEntry
+#[derive(Deserialize)]
+struct ItemRegistry {
+    entries: HashMap<String, ProtocolIdEntry>,
+}
+
+#[derive(Deserialize)]
+struct BlockEntityTypeRegistry {
+    entries: HashMap<String, ProtocolIdEntry>,
+}
+
+// Type for registries.json: "minecraft:item" -> "entries" -> "minecraft:stone" -> ProtocolIdEntry
 #[derive(Deserialize)]
 struct RegistryRoot {
     #[serde(rename = "minecraft:item")]
@@ -38,29 +48,26 @@ struct RegistryRoot {
 
     #[serde(rename = "minecraft:block")]
     block: BlockRegistry,
-}
 
-#[derive(Deserialize)]
-struct ItemRegistry {
-    entries: HashMap<String, ItemEntry>,
+    #[serde(rename = "minecraft:block_entity_type")]
+    block_entity_type: BlockEntityTypeRegistry,
 }
 
 // --- 2. The Main Build Function ---
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=../../assets/data/registries.json");
-    println!("cargo:rerun-if-changed=../../assets/data/blockstates.json");
-    println!("cargo:rerun-if-changed=../../assets/data/item_to_block_mapping.json");
+    println!("cargo:rerun-if-changed=../../assets/generated/generated/reports/blocks.json");
+    println!("cargo:rerun-if-changed=../../assets/generated/generated/reports/registries.json");
 
     // --- 3. Load and parse all files ---
-    let registry_str = fs::read_to_string("../../assets/data/registries.json").unwrap();
-    let registry: RegistryRoot = serde_json::from_str(&registry_str).unwrap();
+    let registry_str = temper_assets::generated::reports::REGISTRIES;
+    let registry: RegistryRoot = serde_json::from_str(registry_str).unwrap();
 
-    let bs_str = fs::read_to_string("../../assets/data/blockstates.json").unwrap();
-    let blockstates: HashMap<String, BlockStateEntry> = serde_json::from_str(&bs_str).unwrap();
+    let blockstates: HashMap<String, BlockStateEntry> =
+        serde_json::from_str(temper_assets::generated::BLOCKSTATES).unwrap();
 
-    let i2b_str = fs::read_to_string("../../assets/data/item_to_block_mapping.json").unwrap();
-    let item_to_block: HashMap<String, String> = serde_json::from_str(&i2b_str).unwrap();
+    let item_to_block: HashMap<String, String> =
+        serde_json::from_str(temper_assets::generated::ITEM_TO_BLOCK_MAPPING).unwrap();
 
     // --- 4. Get the output path ---
     let out_dir = env::var_os("OUT_DIR").unwrap();
@@ -132,4 +139,16 @@ fn main() {
         hardness_map.entry(name, hardness_u32.to_string());
     }
     writeln!(file, "{};\n", hardness_map.build()).unwrap();
+
+    // --- 8. Generate `phf::Map` for BlockEntityTypeName -> Protocol_ID ---
+    write!(
+        file,
+        "static BLOCK_ENTITY_TYPE_NAME_TO_ID: phf::Map<&'static str, i32> = "
+    )
+    .unwrap();
+    let mut block_entity_map = Map::new();
+    for (name, entry) in &registry.block_entity_type.entries {
+        block_entity_map.entry(name, entry.protocol_id.to_string());
+    }
+    writeln!(file, "{};\n", block_entity_map.build()).unwrap();
 }

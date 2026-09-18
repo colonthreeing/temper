@@ -1,6 +1,6 @@
 [package]
 name = "world-db"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2024"
 
 [dependencies]
@@ -12,6 +12,9 @@ wyhash = { workspace = true }
 temper-world-format = { workspace = true }
 bitcode = { workspace = true }
 yazi = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
 
 [lints]
 workspace = true

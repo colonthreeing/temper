@@ -5,7 +5,6 @@ use temper_inventories::errors::InventoryError;
 use temper_protocol::errors::NetError;
 use temper_storage::errors::StorageError;
 use temper_utils::errors::UtilsError;
-use temper_world::world_gen::errors::WorldGenError;
 use temper_world_format::errors::WorldError;
 use thiserror::Error;
 
@@ -40,7 +39,4 @@ pub enum BinaryError {
 
     #[error("Root Path error: {0}")]
     RootPath(#[from] RootPathError),
-
-    #[error("WorldGen error: {0}")]
-    WorldGen(#[from] WorldGenError),
 }

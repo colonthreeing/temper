@@ -210,20 +210,16 @@ pub fn start_game_loop(global_state: GlobalState, no_tui: bool) -> Result<(), Bi
     // PHASE 6: Graceful Shutdown
     // =========================================================================
 
+    // Signal the TCP acceptor thread to stop accepting new connections
+    trace!("Sending shutdown signal to TCP connection acceptor");
+    let _ = shutdown_send.send(());
+
     // Run shutdown systems (save world, disconnect players, cleanup)
     shutdown_schedule.run(&mut ecs_world);
 
-    // Signal the TCP acceptor thread to stop accepting new connections
-    trace!("Sending shutdown signal to TCP connection acceptor");
-    shutdown_send
-        .send(())
-        .expect("Failed to send shutdown signal");
-
     // Wait for TCP acceptor to confirm it has shut down cleanly
     trace!("Waiting for TCP connection acceptor to shut down");
-    shutdown_response_recv
-        .recv()
-        .expect("Failed to receive shutdown response");
+    let _ = shutdown_response_recv.recv();
 
     Ok(())
 }

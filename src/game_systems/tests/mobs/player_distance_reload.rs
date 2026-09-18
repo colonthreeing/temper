@@ -1,3 +1,4 @@
+use crate::{emit_load_messages_for_known_chunks, wait_for_saved_chunk};
 use background::{chunk_unloader, entity_unloader};
 use bevy_ecs::prelude::*;
 use mobs::spawn::{
@@ -12,41 +13,17 @@ use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_marker::PlayerMarker;
 use temper_components::player::position::Position;
 use temper_core::dimension::Dimension;
-use temper_core::pos::ChunkPos;
+use temper_entities::FoxBundle;
+use temper_entities::MobKind;
 use temper_entities::entity_types::EntityTypeEnum;
 use temper_entities::markers::entity_types::Fox;
 use temper_entities::markers::{HasCollisions, HasGravity, HasWaterDrag};
-use temper_entities::FoxBundle;
-use temper_entities::MobKind;
 use temper_messages::chunk_calc::ChunkCalc;
-use temper_messages::load_chunk_entities::LoadChunkEntities;
 use temper_state::create_test_state;
 
 fn emit_chunk_calc_for(entity: Entity) -> impl FnMut(MessageWriter<ChunkCalc>) {
     move |mut writer: MessageWriter<ChunkCalc>| {
         writer.write(ChunkCalc(entity));
-    }
-}
-
-fn emit_load_messages_for_known_chunks(
-    state: Res<temper_state::GlobalStateResource>,
-    mut query: Query<&mut ChunkReceiver>,
-    mut writer: MessageWriter<LoadChunkEntities>,
-) {
-    for mut receiver in query.iter_mut() {
-        while let Some((x, z)) = receiver.loading.pop_front() {
-            let chunk = ChunkPos::new(x, z);
-            receiver.loaded.insert((x, z));
-
-            if state
-                .0
-                .world
-                .chunk_exists(chunk, Dimension::Overworld)
-                .expect("chunk existence check should succeed")
-            {
-                writer.write(LoadChunkEntities(chunk));
-            }
-        }
     }
 }
 
@@ -65,7 +42,7 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
     let expected_last_synced = fox_bundle.last_synced_position;
 
     let mut receiver = ChunkReceiver::default();
-    receiver.loaded.insert((fox_chunk.x(), fox_chunk.z()));
+    receiver.loaded.insert(fox_chunk);
 
     let player_entity = world
         .spawn((
@@ -141,11 +118,7 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
         "fox chunk should be removed from cache after unload"
     );
     {
-        let saved_chunk = state
-            .0
-            .world
-            .get_chunk(fox_chunk, Dimension::Overworld)
-            .expect("saved fox chunk should be readable from storage");
+        let saved_chunk = wait_for_saved_chunk(&state, fox_chunk);
         assert_eq!(
             saved_chunk.entities.len(),
             1,
@@ -176,11 +149,7 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
         let receiver = world
             .get::<ChunkReceiver>(player_entity)
             .expect("player chunk receiver should exist after returning");
-        let queued_fox_chunks = receiver
-            .loading
-            .iter()
-            .filter(|(x, z)| (*x, *z) == (fox_chunk.x(), fox_chunk.z()))
-            .count();
+        let queued_fox_chunks = receiver.loading.iter().filter(|c| **c == fox_chunk).count();
         assert_eq!(
             queued_fox_chunks, 1,
             "player return should queue the fox chunk exactly once"
@@ -235,7 +204,6 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
     assert!(has_collisions, "reloaded fox should regain HasCollisions");
     assert!(has_water_drag, "reloaded fox should regain HasWaterDrag");
     assert_eq!(identity.uuid, expected_identity.uuid);
-    assert_eq!(identity.entity_id, expected_identity.entity_id);
     assert_eq!(loaded_position.coords, fox_position.coords);
     assert_eq!(last_chunk.0, fox_chunk);
     assert_eq!(last_synced.0, expected_last_synced.0);

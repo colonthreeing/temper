@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::{Commands, Entity, Query, ResMut};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_components::player::time::LastSentTimeUpdate;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::outgoing::update_time::UpdateTimePacket;
+use temper_protocol::outgoing::update_time::{Clock, UpdateTimePacket};
 use temper_resources::time::WorldTime;
 use tracing::warn;
 
@@ -15,8 +16,13 @@ pub fn tick_daylight_cycle(
 
     let packet = UpdateTimePacket {
         world_age: 0,
-        time_of_day: world_time.current_time().into(),
-        time_of_day_increasing: true,
+        clocks: LengthPrefixedVec::new(vec![Clock {
+            // Hardcoded overworld ID. Not ideal but fine for now.
+            clock_id: 0.into(),
+            time: i32::from(world_time.current_time()).into(),
+            fractional_time: 0.0,
+            rate: 1.0,
+        }]),
     };
 
     for (eid, writer) in players.iter() {

@@ -32,7 +32,7 @@ pub fn matches_block(input: TokenStream) -> TokenStream {
         format!("minecraft:{}", block_name)
     };
     let block_state_id_var = &input.id_var;
-    let mut buf = JSON_FILE.to_vec();
+    let mut buf = JSON_FILE.as_bytes().to_vec();
     let v = simd_json::to_owned_value(&mut buf).unwrap();
     let filtered_names = v
         .as_object()

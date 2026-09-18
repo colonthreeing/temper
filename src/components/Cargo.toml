@@ -1,6 +1,6 @@
 [package]
 name = "temper-components"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 description = "Temper components"
 
@@ -19,6 +19,7 @@ uuid = { workspace = true }
 type_hash = { workspace = true }
 serde = { workspace = true }
 crossbeam-queue = { workspace = true }
+crossbeam-channel = { workspace = true }
 temper-permissions = { workspace = true }
 rand = { workspace = true }
 

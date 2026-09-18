@@ -33,7 +33,7 @@ pub(crate) struct Packets {
 }
 
 pub(crate) static PACKETS_JSON: LazyLock<Packets> = LazyLock::new(|| {
-    let json_str = include_str!("../../../../../assets/data/packets.json");
+    let json_str = temper_assets::generated::reports::PACKETS;
     serde_json::from_str(json_str).unwrap()
 });
 

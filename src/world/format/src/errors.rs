@@ -31,6 +31,10 @@ pub enum WorldError {
     BitcodeDeserializeError(String),
     #[error("There was an error with bitcode's serializing: {0}")]
     BitcodeSerializeError(String),
+    #[error("Failed to deserialize block entity data: {0}")]
+    BlockEntityDeserializeError(String),
+    #[error("Failed to serialize block entity data: {0}")]
+    BlockEntitySerializeError(String),
     #[error("Chunk not found")]
     ChunkNotFound,
     #[error("Anvil Decode Error: {0}")]
@@ -61,6 +65,8 @@ pub enum WorldError {
     CorruptedChunkData(u32, u32),
     #[error("NBT data error: {0}")]
     NBTError(#[from] temper_nbt::errors::NBTError),
+    #[error("Invalid world generator: {0}")]
+    InvalidWorldGenerator(String),
 }
 
 impl From<std::io::Error> for WorldError {

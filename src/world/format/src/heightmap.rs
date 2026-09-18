@@ -9,7 +9,9 @@ use type_hash::TypeHash;
 
 #[derive(Default, Clone, DeepSizeOf, Serialize, Deserialize, TypeHash)]
 pub struct Heightmaps {
+    /// Highest non-fluid block
     pub world_surface: ChunkHeightmap,
+    /// Highest non-air block
     pub motion_blocking: ChunkHeightmap,
 }
 
@@ -21,7 +23,7 @@ pub struct ChunkHeightmap {
 impl Default for ChunkHeightmap {
     fn default() -> Self {
         Self {
-            data: vec![0; 256].into_boxed_slice(),
+            data: vec![-64; 256].into_boxed_slice(),
         }
     }
 }
@@ -66,9 +68,7 @@ pub struct NetworkHeightmap {
 }
 
 impl Heightmaps {
-    pub fn get_network_repr(
-        heightmaps: &Option<Heightmaps>,
-    ) -> LengthPrefixedVec<NetworkHeightmap> {
+    pub fn get_network_repr(heightmaps: &Heightmaps) -> LengthPrefixedVec<NetworkHeightmap> {
         const BITS_PER_ENTRY: usize = 9;
         const ENTRIES_PER_LONG: usize = 64 / 9;
         const NUMBER_OF_ENTRIES: usize = 16 * 16;
@@ -78,24 +78,22 @@ impl Heightmaps {
         let mut world_surface = vec![0u64; NUMBER_OF_LONGS];
         let mut motion_blocking = vec![0u64; NUMBER_OF_LONGS];
 
-        if let Some(heightmaps) = heightmaps.as_ref() {
-            for (i, (&world_surface_val, &motion_blocking_val)) in heightmaps
-                .world_surface
-                .data
-                .iter()
-                .zip(heightmaps.motion_blocking.data.iter())
-                .enumerate()
-            {
-                let entry_mask = (1u64 << BITS_PER_ENTRY) - 1;
-                let long_index = i / ENTRIES_PER_LONG;
-                let bit_index = i % ENTRIES_PER_LONG * BITS_PER_ENTRY;
+        for (i, (&world_surface_val, &motion_blocking_val)) in heightmaps
+            .world_surface
+            .data
+            .iter()
+            .zip(heightmaps.motion_blocking.data.iter())
+            .enumerate()
+        {
+            let entry_mask = (1u64 << BITS_PER_ENTRY) - 1;
+            let long_index = i / ENTRIES_PER_LONG;
+            let bit_index = i % ENTRIES_PER_LONG * BITS_PER_ENTRY;
 
-                world_surface[long_index] &= !(entry_mask << bit_index);
-                world_surface[long_index] |= (world_surface_val as u64) << bit_index;
+            world_surface[long_index] &= !(entry_mask << bit_index);
+            world_surface[long_index] |= (world_surface_val as u64) << bit_index;
 
-                motion_blocking[long_index] &= !(entry_mask << bit_index);
-                motion_blocking[long_index] |= (motion_blocking_val as u64) << bit_index;
-            }
+            motion_blocking[long_index] &= !(entry_mask << bit_index);
+            motion_blocking[long_index] |= (motion_blocking_val as u64) << bit_index;
         }
 
         let heightmaps = vec![

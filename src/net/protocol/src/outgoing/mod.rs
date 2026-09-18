@@ -59,6 +59,7 @@ pub mod unload_chunk;
 pub mod hurt_animation;
 pub mod respawn;
 pub mod set_health;
+pub mod update_tags;
 pub mod update_time;
 
 pub mod synchronise_vehicle_position;
@@ -67,3 +68,9 @@ pub mod open_screen;
 pub mod show_dialog;
 
 pub mod boss_event;
+
+pub mod block_entity_data;
+pub mod damage_player;
+pub mod open_sign_editor;
+
+pub mod player_death;

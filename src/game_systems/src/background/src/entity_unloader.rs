@@ -15,7 +15,7 @@ pub fn handle(
         let (k, _v) = chunk_candidate.pair();
         all_chunks.insert(k.0);
         for chunk_receiver in query.iter() {
-            if chunk_receiver.loaded.contains(&(k.0.x(), k.0.z())) {
+            if chunk_receiver.loaded.contains(&k.0) {
                 visible_chunks.insert(k.0);
                 continue 'chunk_iter;
             }

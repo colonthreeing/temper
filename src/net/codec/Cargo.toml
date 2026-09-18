@@ -1,6 +1,6 @@
 [package]
 name = "temper-codec"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 
 [dependencies]
@@ -10,6 +10,7 @@ temper-general-purpose = { workspace = true }
 deepsize = { workspace = true }
 type_hash = { workspace = true }
 tokio = { workspace = true }
+bevy_math = { workspace = true }
 
 [lints]
 workspace = true

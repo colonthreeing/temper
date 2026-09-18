@@ -3,12 +3,13 @@ use temper_components::player::abilities::PlayerAbilities;
 use temper_messages::BlockBrokenEvent;
 use temper_messages::player_digging::*;
 
-use interactions::door_interaction::break_block_with_door_half;
+use temper_blocks::BlockDispatch;
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
+use temper_macros::block;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerActionReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
@@ -51,18 +52,30 @@ pub fn handle(
             // --- CREATIVE MODE LOGIC ---
             // Only instabreak (status 0) is relevant in creative.
             if event.status.0 == 0 {
-                let mut chunk = state
-                    .0
-                    .world
-                    .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
-                    .expect("Failed to load or generate chunk");
-
                 world_change.write(temper_messages::world_change::WorldChange {
                     chunk: Some(pos.chunk()),
                 });
 
-                let broken_positions =
-                    break_block_with_door_half(&mut chunk, pos, &mut block_break_events);
+                let Ok(id) = state.0.world.get_block(pos, Dimension::Overworld) else {
+                    error!("Couldn't get block at pos {}", pos);
+                    continue;
+                };
+
+                let mut broken_positions = id.try_break(&state.0.world, pos).blocks;
+                broken_positions.push(pos);
+
+                for pos in &broken_positions {
+                    block_break_events.write(BlockBrokenEvent { position: *pos });
+
+                    if let Err(world_error) =
+                        state
+                            .0
+                            .world
+                            .set_block(*pos, Dimension::Overworld, block!("air"))
+                    {
+                        error!("Failed to break block at {}: {}", pos, world_error)
+                    }
+                }
 
                 // Broadcast the change
                 for (eid, conn) in &broadcast_query {

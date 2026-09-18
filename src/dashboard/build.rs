@@ -1,4 +1,5 @@
 use anyhow::Result;
+use build_print::info;
 use std::env;
 use std::fs;
 use std::io::{Cursor, Write};
@@ -39,10 +40,7 @@ fn main() -> Result<()> {
     }
 
     // 2. Always attempt to download the dashboard
-    println!(
-        "cargo:warning=Downloading Dashboard artifact from {}",
-        DASHBOARD_URL
-    );
+    info!("Downloading Dashboard artifact from {}", DASHBOARD_URL);
 
     let client = reqwest::blocking::Client::new();
     let download_result = client
@@ -82,7 +80,7 @@ fn main() -> Result<()> {
                 }
             }
 
-            println!("cargo:warning=Dashboard extracted to {:?}", dest_dir);
+            info!("Dashboard extracted to {:?}", dest_dir);
         }
         _ => {
             // Download failed (no internet, request error, non-success status)

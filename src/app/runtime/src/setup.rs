@@ -31,20 +31,14 @@ pub fn generate_spawn_chunks(state: GlobalState) -> Result<(), BinaryError> {
         let state_clone = state.clone();
         batch.execute(move || {
             let pos = ChunkPos::new(x, z);
-            let chunk = state_clone.world.world_generator.generate_chunk(pos);
-
-            match chunk {
-                Ok(chunk) => {
-                    if let Err(e) = state_clone
-                        .world
-                        .insert_chunk(pos, Dimension::Overworld, chunk)
-                    {
-                        error!("Error saving chunk ({}, {}): {:?}", x, z, e);
-                    }
-                }
-                Err(e) => {
-                    error!("Error generating chunk ({}, {}): {:?}", x, z, e);
-                }
+            let chunk_store = &state_clone.world.chunks;
+            if let Err(e) =
+                state_clone
+                    .world
+                    .chunk_generator
+                    .generate(chunk_store, Dimension::Overworld, pos)
+            {
+                error!("Failed to generate chunk at {}: {:?}", pos, e);
             }
         });
     }
@@ -58,14 +52,14 @@ pub fn setup_db(state: GlobalState) -> Result<(), BinaryError> {
     info!("Setting up database...");
 
     let chunk_key = string_to_u128("chunk-format-hash");
-    state.world.storage_backend.insert(
+    state.world.chunks.storage_backend.insert(
         "metadata".to_string(),
         chunk_key,
         Chunk::type_hash().to_be_bytes().to_vec(),
     )?;
 
     let player_key = string_to_u128("player-format-hash");
-    state.world.storage_backend.insert(
+    state.world.chunks.storage_backend.insert(
         "metadata".to_string(),
         player_key,
         OfflinePlayerData::type_hash().to_be_bytes().to_vec(),

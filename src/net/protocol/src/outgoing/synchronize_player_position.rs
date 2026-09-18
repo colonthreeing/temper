@@ -1,4 +1,3 @@
-use crate::outgoing::set_default_spawn_position::DEFAULT_SPAWN_POSITION;
 use temper_codec::net_types::teleport_flags::TeleportFlags;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::position::Position;
@@ -18,20 +17,6 @@ pub struct SynchronizePlayerPositionPacket {
     pub yaw: f32,
     pub pitch: f32,
     pub flags: TeleportFlags,
-}
-
-impl Default for SynchronizePlayerPositionPacket {
-    fn default() -> Self {
-        let default_pos = DEFAULT_SPAWN_POSITION;
-        Self::new(
-            (default_pos.x, default_pos.y, default_pos.z),
-            (0.0, 0.0, 0.0),
-            0.0,
-            0.0,
-            0,
-            VarInt::new(0),
-        )
-    }
 }
 
 impl SynchronizePlayerPositionPacket {
